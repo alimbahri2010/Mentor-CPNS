@@ -1,0 +1,6 @@
+{
+  "name": "Mentor CPNS - Program Kelas Karantina 2026",
+  "description": "Website resmi dan dashboard program kelas karantina intensif SKD CAT CPNS 2026. Dilengkapi modul belajar, simulasi CAT, materi video/PDF, dan admin panel CMS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
