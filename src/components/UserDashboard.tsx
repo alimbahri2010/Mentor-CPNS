@@ -216,7 +216,7 @@ export default function UserDashboard({
     setTimeout(() => setPasswordSuccess(''), 3000);
   };
 
-  // Handle uploading transfer proof (mock file upload)
+  // Handle uploading transfer proof (real file upload)
   const handleUploadProof = (e: React.FormEvent) => {
     e.preventDefault();
     setPaymentSuccess('');
@@ -226,16 +226,16 @@ export default function UserDashboard({
       return;
     }
 
-    const mockProofUrl = 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500&auto=format&fit=crop&q=80';
+    const proofUrl = uploadedProof || 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500&auto=format&fit=crop&q=80';
     
     onUpdateUser({
       ...user,
-      paymentProof: mockProofUrl,
+      paymentProof: proofUrl,
       paymentDate: paymentDate,
       status: 'Pending' // Updates to pending while admin checks it!
     });
 
-    setUploadedProof(mockProofUrl);
+    setUploadedProof(proofUrl);
     setPaymentSuccess('Bukti transfer berhasil diunggah! Mohon tunggu verifikasi admin keuangan kami (Maksimal 1x24 Jam).');
   };
 
@@ -1093,15 +1093,55 @@ export default function UserDashboard({
                         />
                       </div>
 
-                      {/* File Upload mock area */}
+                      {/* File Upload interactive area */}
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-700 block">Unggah Gambar Bukti Transfer:</label>
-                        <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-all flex flex-col items-center justify-center space-y-2">
-                          <Upload className="w-8 h-8 text-gray-400 animate-pulse" />
-                          <div className="text-xs">
-                            <span className="text-primary font-bold cursor-pointer hover:underline">Pilih Gambar / Berkas Bukti</span> atau drag & drop
-                          </div>
-                          <span className="text-[10px] text-gray-400">Mendukung format PNG, JPG, JPEG (Max. 5MB)</span>
+                        
+                        <div className="flex gap-4 items-center">
+                          {uploadedProof ? (
+                            <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-gray-150 bg-white shrink-0 shadow-xs">
+                              <img 
+                                src={uploadedProof} 
+                                alt="Payment Proof Preview" 
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setUploadedProof(null)}
+                                className="absolute inset-0 bg-black/55 hover:bg-black/70 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                                title="Hapus Bukti"
+                              >
+                                <X className="w-5 h-5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-24 h-24 rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                              <Upload className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+
+                          <label className="flex-1 border-2 border-dashed border-gray-200 hover:border-primary/50 rounded-2xl p-4 text-center bg-gray-50/50 hover:bg-gray-50/80 transition-all flex flex-col items-center justify-center space-y-1 cursor-pointer">
+                            <Upload className="w-5 h-5 text-primary" />
+                            <span className="text-xs font-bold text-primary">Pilih Gambar Bukti</span>
+                            <span className="text-[9px] text-gray-400">PNG, JPG, JPEG (Maks. 5MB)</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    if (typeof reader.result === 'string') {
+                                      setUploadedProof(reader.result);
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
                         </div>
                       </div>
 

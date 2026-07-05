@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Users, 
+  User,
   CreditCard, 
   BookOpen, 
   HelpCircle, 
@@ -102,6 +103,7 @@ export default function AdminDashboard({
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [newReviewImage, setNewReviewImage] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80');
   const [newReviewInstansi, setNewReviewInstansi] = useState('Kemenkumham (Penjaga Tahanan)');
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   
   // CRUD Mentor states
   const [newMentorName, setNewMentorName] = useState('');
@@ -197,6 +199,7 @@ export default function AdminDashboard({
     setNewMentorName('');
     setNewMentorRole('');
     setNewMentorSpec('');
+    setNewMentorImage('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80');
   };
 
   // Delete Mentor
@@ -380,31 +383,76 @@ export default function AdminDashboard({
     }
   };
 
-  // Add Review
+  // Add / Edit Review
   const handleAddReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newReviewName || !newReviewText) return;
 
-    const newReview: Testimonial = {
-      id: 't_' + Date.now(),
-      name: newReviewName,
-      role: newReviewRole,
-      text: newReviewText,
-      rating: Number(newReviewRating),
-      image: newReviewImage,
-      instansi: newReviewInstansi
-    };
+    if (editingReviewId) {
+      const updated = testimonials.map(t => {
+        if (t.id === editingReviewId) {
+          return {
+            ...t,
+            name: newReviewName,
+            role: newReviewRole,
+            text: newReviewText,
+            rating: Number(newReviewRating),
+            image: newReviewImage,
+            instansi: newReviewInstansi
+          };
+        }
+        return t;
+      });
+      onUpdateTestimonials(updated);
+      setEditingReviewId(null);
+    } else {
+      const newReview: Testimonial = {
+        id: 't_' + Date.now(),
+        name: newReviewName,
+        role: newReviewRole,
+        text: newReviewText,
+        rating: Number(newReviewRating),
+        image: newReviewImage,
+        instansi: newReviewInstansi
+      };
+      onUpdateTestimonials([newReview, ...testimonials]);
+    }
 
-    onUpdateTestimonials([newReview, ...testimonials]);
     setNewReviewName('');
     setNewReviewText('');
     setNewReviewInstansi('Kemenkumham (Penjaga Tahanan)');
+    setNewReviewRole('Alumni Karantina 2026');
+    setNewReviewRating(5);
+    setNewReviewImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80');
+  };
+
+  const handleStartEditReview = (testimonial: Testimonial) => {
+    setEditingReviewId(testimonial.id);
+    setNewReviewName(testimonial.name);
+    setNewReviewText(testimonial.text);
+    setNewReviewInstansi(testimonial.instansi);
+    setNewReviewRole(testimonial.role || 'Alumni Karantina 2026');
+    setNewReviewRating(testimonial.rating);
+    setNewReviewImage(testimonial.image);
+  };
+
+  const handleCancelEditReview = () => {
+    setEditingReviewId(null);
+    setNewReviewName('');
+    setNewReviewText('');
+    setNewReviewInstansi('Kemenkumham (Penjaga Tahanan)');
+    setNewReviewRole('Alumni Karantina 2026');
+    setNewReviewRating(5);
+    setNewReviewImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80');
   };
 
   // Delete Review
   const handleDeleteReview = (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus ulasan ini?')) {
       onUpdateTestimonials(testimonials.filter(t => t.id !== id));
+      if (editingReviewId === id) {
+        handleCancelEditReview();
+      }
     }
   };
 
@@ -876,6 +924,61 @@ export default function AdminDashboard({
                         onChange={(e) => setNewMentorSpec(e.target.value)}
                         className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none"
                       />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block flex items-center justify-between">
+                        <span>Foto Profil Mentor:</span>
+                        <span className="text-[10px] text-gray-400">Upload foto lokal</span>
+                      </label>
+                      <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-150">
+                        {newMentorImage ? (
+                          <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white shrink-0 shadow-xs">
+                            <img 
+                              src={newMentorImage} 
+                              alt="Mentor Avatar Preview" 
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setNewMentorImage('')}
+                              className="absolute inset-0 bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                              title="Hapus foto"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 rounded-full border border-dashed border-gray-300 bg-white flex items-center justify-center shrink-0">
+                            <User className="w-5 h-5 text-gray-400" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <label className="inline-flex bg-primary/10 hover:bg-primary/20 text-primary font-bold px-3.5 py-2 rounded-xl text-xs cursor-pointer items-center gap-1.5 transition-all border border-dashed border-primary/20">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>{newMentorImage ? 'Ganti Foto' : 'Upload Foto'}</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    if (typeof reader.result === 'string') {
+                                      setNewMentorImage(reader.result);
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          <p className="text-[9px] text-gray-400 mt-1">Saran aspek rasio 1:1.</p>
+                        </div>
+                      </div>
                     </div>
 
                     <button 
@@ -1608,8 +1711,17 @@ export default function AdminDashboard({
                 {/* Form to add */}
                 <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
                   <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
-                    <Plus className="w-5 h-5 text-primary" />
-                    <span>Tambahkan Ulasan Baru</span>
+                    {editingReviewId ? (
+                      <>
+                        <Edit3 className="w-5 h-5 text-amber-500" />
+                        <span>Ubah Ulasan Testimoni</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5 text-primary" />
+                        <span>Tambahkan Ulasan Baru</span>
+                      </>
+                    )}
                   </h4>
 
                   <form onSubmit={handleAddReview} className="space-y-4">
@@ -1657,40 +1769,56 @@ export default function AdminDashboard({
 
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-700 block flex items-center justify-between">
-                        <span>URL Foto Profil:</span>
-                        <span className="text-[10px] text-gray-400">Bisa upload foto lokal</span>
+                        <span>Foto Profil Alumni:</span>
+                        <span className="text-[10px] text-gray-400">Upload foto lokal</span>
                       </label>
-                      <div className="flex gap-2">
-                        <input 
-                          id="new-review-image"
-                          type="text"
-                          required
-                          placeholder="Masukkan URL Avatar atau upload..."
-                          value={newReviewImage}
-                          onChange={(e) => setNewReviewImage(e.target.value)}
-                          className="flex-1 px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none"
-                        />
-                        <label className="bg-primary/10 hover:bg-primary/20 text-primary font-bold px-4 py-3 rounded-xl text-xs cursor-pointer flex items-center gap-1.5 transition-all whitespace-nowrap border border-primary/20">
-                          <Upload className="w-3.5 h-3.5" />
-                          <span>Upload</span>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            className="hidden" 
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  if (typeof reader.result === 'string') {
-                                    setNewReviewImage(reader.result);
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
-                        </label>
+                      <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-150">
+                        {newReviewImage ? (
+                          <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white shrink-0">
+                            <img 
+                              src={newReviewImage} 
+                              alt="Alumni Avatar Preview" 
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setNewReviewImage('')}
+                              className="absolute inset-0 bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                              title="Hapus foto"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 rounded-full border border-dashed border-gray-300 bg-white flex items-center justify-center shrink-0">
+                            <User className="w-5 h-5 text-gray-400" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <label className="inline-flex bg-primary/10 hover:bg-primary/20 text-primary font-bold px-3.5 py-2 rounded-xl text-xs cursor-pointer items-center gap-1.5 transition-all border border-dashed border-primary/20">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>{newReviewImage ? 'Ganti Foto' : 'Upload Foto'}</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    if (typeof reader.result === 'string') {
+                                      setNewReviewImage(reader.result);
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          <p className="text-[9px] text-gray-400 mt-1">Format 1:1 direkomendasikan.</p>
+                        </div>
                       </div>
                     </div>
 
@@ -1707,13 +1835,24 @@ export default function AdminDashboard({
                       ></textarea>
                     </div>
 
-                    <button 
-                      id="new-review-submit"
-                      type="submit"
-                      className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer"
-                    >
-                      Tambahkan Ulasan Alumni
-                    </button>
+                    <div className="flex gap-3">
+                      {editingReviewId && (
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditReview}
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl transition-all text-xs cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                      )}
+                      <button 
+                        id="new-review-submit"
+                        type="submit"
+                        className={`font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer ${editingReviewId ? 'flex-1 bg-amber-500 hover:bg-amber-600 text-white' : 'w-full bg-primary hover:bg-secondary text-white'}`}
+                      >
+                        {editingReviewId ? 'Simpan Perubahan' : 'Tambahkan Ulasan Alumni'}
+                      </button>
+                    </div>
                   </form>
                 </div>
 
@@ -1723,8 +1862,8 @@ export default function AdminDashboard({
                   
                   <div className="space-y-3">
                     {testimonials.map((t) => (
-                      <div key={t.id} className="bg-white p-5 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-start gap-4 text-xs">
-                        <div className="flex gap-3 items-start">
+                      <div key={t.id} className="bg-white p-5 rounded-2xl border border-gray-150 shadow-xs flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 text-xs">
+                        <div className="flex gap-3 items-start flex-1">
                           <img 
                             src={t.image} 
                             alt={t.name}
@@ -1746,13 +1885,24 @@ export default function AdminDashboard({
                           </div>
                         </div>
 
-                        <button 
-                          id={`delete-review-btn-${t.id}`}
-                          onClick={() => handleDeleteReview(t.id)}
-                          className="text-gray-400 hover:text-red-600 p-2 rounded-lg shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex sm:flex-col gap-1.5 shrink-0 self-end sm:self-start">
+                          <button
+                            id={`edit-review-btn-${t.id}`}
+                            onClick={() => handleStartEditReview(t)}
+                            className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[10px] transition-colors cursor-pointer border border-amber-200/30"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>Ubah</span>
+                          </button>
+                          <button 
+                            id={`delete-review-btn-${t.id}`}
+                            onClick={() => handleDeleteReview(t.id)}
+                            className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] transition-colors cursor-pointer border border-red-200/30"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Hapus</span>
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
