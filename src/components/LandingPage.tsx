@@ -33,18 +33,20 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { LandingPageCMS, Mentor, FAQItem, Testimonial, AppUser } from '../types';
+import { LandingPageCMS, Mentor, FAQItem, Testimonial, AppUser, Benefit, Facility } from '../types';
 
 interface LandingPageProps {
   cms: LandingPageCMS;
   mentors: Mentor[];
   faqs: FAQItem[];
   testimonials: Testimonial[];
+  benefits?: Benefit[];
+  facilities?: Facility[];
   user: AppUser | null;
   onNavigate: (page: string) => void;
 }
 
-export default function LandingPage({ cms, mentors, faqs, testimonials, user, onNavigate }: LandingPageProps) {
+export default function LandingPage({ cms, mentors, faqs, testimonials, benefits = [], facilities = [], user, onNavigate }: LandingPageProps) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -656,93 +658,32 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, user, on
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Benefit 1 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <Clock className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Belajar Intensif 30 Hari</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Durasi belajar penuh pagi, siang, dan malam dengan pembagian modul materi yang teratur agar seluruh silabus terkuasai tuntas.
-              </p>
-            </div>
-
-            {/* Benefit 2 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <Users className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Didampingi Mentor PNS/ASN Aktif Berpengalaman</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Interaksi intens bersama PNS Kemenkumham, Dosen, serta ahli TWK, TIU, dan TKP secara tatap muka langsung setiap hari.
-              </p>
-            </div>
-
-            {/* Benefit 3 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <Laptop className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Simulasi & Latihan CAT Berkala</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Latihan menguji kesiapan mental menghadapi sistem acak komputer CAT, analisis ketepatan, dan trik waktu pengerjaan.
-              </p>
-            </div>
-
-            {/* Benefit 4 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <Calendar className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Pendampingan Harian yang Fokus</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Setiap peserta akan dievaluasi langsung oleh tim mentor harian untuk mendeteksi sub-materi apa saja yang belum tuntas dikuasai.
-              </p>
-            </div>
-
-            {/* Benefit 5 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Evaluasi Perkembangan Terarah</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Laporan nilai berkala yang memetakan perkembangan grafik skor tryout Anda dari awal karantina hingga siap ujian resmi.
-              </p>
-            </div>
-
-            {/* Benefit 6 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Modul Belajar Super Lengkap</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Mendapatkan bundel modul fisik (buku cetak eksklusif) dan akses materi video penjelasan serta PDF digital yang komprehensif.
-              </p>
-            </div>
-
-            {/* Benefit 7 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <FileCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Pendampingan Pendaftaran/Pemberkasan</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Bimbingan langkah demi langkah dalam menyiapkan berkas administrasi, surat pernyataan, hingga proses upload di portal SSCASN tanpa keliru.
-              </p>
-            </div>
-
-            {/* Benefit 8 */}
-            <div className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
-                <Target className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Konsultasi Pemilihan Formasi & Instansi</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Analisis peluang kelulusan berdasarkan peta persaingan formasi tahun sebelumnya, kuota instansi, dan kualifikasi jurusan Anda.
-              </p>
-            </div>
+            {benefits.map((benefit) => {
+              const IconComp = (() => {
+                switch (benefit.iconName) {
+                  case 'Clock': return Clock;
+                  case 'Users': return Users;
+                  case 'Laptop': return Laptop;
+                  case 'Calendar': return Calendar;
+                  case 'TrendingUp': return TrendingUp;
+                  case 'BookOpen': return BookOpen;
+                  case 'FileCheck': return FileCheck;
+                  case 'Target': return Target;
+                  default: return Award;
+                }
+              })();
+              return (
+                <div key={benefit.id} className="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/40 hover:border-primary/30 hover:bg-white/80 hover:shadow-xl transition-all shadow-sm group">
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
+                    <IconComp className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{benefit.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    {benefit.description}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
         </div>
@@ -763,139 +704,37 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, user, on
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            
-            {/* Facility Card 1 */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
-              <div className="h-48 bg-gray-200 relative overflow-hidden">
-                <img 
-                  src="/assets/images/regenerated_image_1782968339729.jpg" 
-                  alt="Hotel Sultan Alauddin Makassar" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-3 left-3 bg-primary text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                  Lokasi Utama
+            {facilities.map((facility) => (
+              <div key={facility.id} className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
+                <div className="h-48 bg-gray-200 relative overflow-hidden">
+                  <img 
+                    src={facility.image} 
+                    alt={facility.title} 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                  {facility.badge && (
+                    <div className="absolute top-3 left-3 bg-primary text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
+                      {facility.badge}
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 space-y-3">
+                  <h4 className="font-extrabold text-gray-900 text-lg">{facility.title}</h4>
+                  <p className="text-xs text-gray-500">
+                    {facility.description}
+                  </p>
+                  {facility.ratingText && (
+                    <div className="flex items-center gap-1.5 text-xs text-gold font-bold">
+                      <Star className="w-4 h-4 fill-gold text-gold" />
+                      <Star className="w-4 h-4 fill-gold text-gold" />
+                      <Star className="w-4 h-4 fill-gold text-gold" />
+                      <span>{facility.ratingText}</span>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="p-6 space-y-3">
-                <h4 className="font-extrabold text-gray-900 text-lg">Hotel Sultan Alauddin Makassar</h4>
-                <p className="text-xs text-gray-500">
-                  Peserta akan tinggal dan belajar di kawasan hotel bintang 3 nyaman, bersih, berlokasi strategis di kota Makassar.
-                </p>
-                <div className="flex items-center gap-1.5 text-xs text-gold font-bold">
-                  <Star className="w-4 h-4 fill-gold text-gold" />
-                  <Star className="w-4 h-4 fill-gold text-gold" />
-                  <Star className="w-4 h-4 fill-gold text-gold" />
-                  <span>Hotel Bintang 3</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Facility Card 2 */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
-              <div className="h-48 bg-gray-200 relative overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80" 
-                  alt="Konsumsi Lengkap" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-3 left-3 bg-secondary text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                  All-Inclusive
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <h4 className="font-extrabold text-gray-900 text-lg">3x Makan & 2x Coffee Break</h4>
-                <p className="text-xs text-gray-500">
-                  Nutrisi harian terjamin. Makan pagi, siang, dan malam dengan menu sehat bervariasi, ditambah makanan ringan harian di sela kelas.
-                </p>
-              </div>
-            </div>
-
-            {/* Facility Card 3 */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
-              <div className="h-48 bg-gray-200 relative overflow-hidden">
-                <img 
-                  src="/assets/images/regenerated_image_1782968341041.jpg" 
-                  alt="Tempat Belajar Kondusif" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-3 left-3 bg-[#1F2937] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                  Kondusif
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <h4 className="font-extrabold text-gray-900 text-lg">Kamar & Tempat Belajar Premium</h4>
-                <p className="text-xs text-gray-500">
-                  Kamar menginap ber-AC, tempat tidur nyaman, air hangat, serta akses ruang belajar khusus berfasilitas lengkap bebas bising.
-                </p>
-              </div>
-            </div>
-
-            {/* Facility Card 4 */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
-              <div className="h-48 bg-gray-200 relative overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80" 
-                  alt="Latihan Samapta Fisik" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-3 left-3 bg-primary text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                  Khusus
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <h4 className="font-extrabold text-gray-900 text-lg">Latihan Samapta (Fisik)</h4>
-                <p className="text-xs text-gray-500">
-                  Khusus formasi penjaga tahanan / dinas terkait, kami siapkan latihan ketahanan fisik dibimbing oleh instruktur profesional.
-                </p>
-              </div>
-            </div>
-
-            {/* Facility Card 5 */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
-              <div className="h-48 bg-gray-200 relative overflow-hidden">
-                <img 
-                  src="/assets/images/regenerated_image_1782968336832.jpg" 
-                  alt="Latihan Beladiri" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-3 left-3 bg-primary text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                  Fisik
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <h4 className="font-extrabold text-gray-900 text-lg">Latihan Beladiri (Silat)</h4>
-                <p className="text-xs text-gray-500">
-                  Membekali ketahanan diri fisik dengan latihan pencak silat berkala, sangat berguna untuk nilai tambah wawancara dan instansi.
-                </p>
-              </div>
-            </div>
-
-            {/* Facility Card 6 */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
-              <div className="h-48 bg-gray-200 relative overflow-hidden">
-                <img 
-                  src="/assets/images/regenerated_image_1782968481370.jpg" 
-                  alt="Latihan Komputer CAT" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-3 left-3 bg-gold text-gray-950 text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                  Simulasi CAT
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <h4 className="font-extrabold text-gray-900 text-lg">Latihan Komputer CAT Riil</h4>
-                <p className="text-xs text-gray-500">
-                  Latihan langsung di depan komputer dengan software CAT simulasi yang mensimulasikan persis tampilan waktu, tata letak soal ujian BKN.
-                </p>
-              </div>
-            </div>
-
+            ))}
           </div>
         </div>
       </section>

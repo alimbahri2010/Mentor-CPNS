@@ -21,9 +21,13 @@ import {
   Search,
   RefreshCw,
   LayoutDashboard,
-  Menu
+  Menu,
+  Award,
+  Star,
+  Sparkles,
+  Upload
 } from 'lucide-react';
-import { AppUser, Mentor, FAQItem, Testimonial, LearningMaterial, Tryout, LandingPageCMS, TryoutQuestion } from '../types';
+import { AppUser, Mentor, FAQItem, Testimonial, LearningMaterial, Tryout, LandingPageCMS, TryoutQuestion, Benefit, Facility } from '../types';
 
 interface AdminDashboardProps {
   currentUser: AppUser;
@@ -34,6 +38,11 @@ interface AdminDashboardProps {
   materials: LearningMaterial[];
   tryouts: Tryout[];
   cms: LandingPageCMS;
+  benefits: Benefit[];
+  onUpdateBenefits: (updatedBenefits: Benefit[]) => void;
+  facilities: Facility[];
+  onUpdateFacilities: (updatedFacilities: Facility[]) => void;
+  onUpdateTestimonials: (updatedTestimonials: Testimonial[]) => void;
   onUpdateCMS: (updatedCMS: LandingPageCMS) => void;
   onUpdateUsers: (updatedUsers: AppUser[]) => void;
   onUpdateMentors: (updatedMentors: Mentor[]) => void;
@@ -51,6 +60,11 @@ export default function AdminDashboard({
   materials,
   tryouts,
   cms,
+  benefits,
+  onUpdateBenefits,
+  facilities,
+  onUpdateFacilities,
+  onUpdateTestimonials,
   onUpdateCMS,
   onUpdateUsers,
   onUpdateMentors,
@@ -64,9 +78,30 @@ export default function AdminDashboard({
     currentUser.role as any || 'Super Admin'
   );
 
-  const [activeTab, setActiveTab] = useState<'analytics' | 'registrations' | 'mentors' | 'materials' | 'tryouts' | 'cms' | 'settings'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'registrations' | 'mentors' | 'materials' | 'tryouts' | 'cms' | 'settings' | 'benefits' | 'facilities' | 'reviews'>('analytics');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // CRUD Benefit states
+  const [newBenefitTitle, setNewBenefitTitle] = useState('');
+  const [newBenefitDesc, setNewBenefitDesc] = useState('');
+  const [newBenefitIcon, setNewBenefitIcon] = useState('Clock');
+
+  // CRUD Facility states
+  const [newFacilityTitle, setNewFacilityTitle] = useState('');
+  const [newFacilityDesc, setNewFacilityDesc] = useState('');
+  const [newFacilityImage, setNewFacilityImage] = useState('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&auto=format&fit=crop&q=80');
+  const [newFacilityBadge, setNewFacilityBadge] = useState('Premium');
+  const [newFacilityRating, setNewFacilityRating] = useState('Hotel Bintang 3');
+  const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
+
+  // CRUD Review/Testimonial states
+  const [newReviewName, setNewReviewName] = useState('');
+  const [newReviewRole, setNewReviewRole] = useState('Alumni Karantina 2026');
+  const [newReviewText, setNewReviewText] = useState('');
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewImage, setNewReviewImage] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80');
+  const [newReviewInstansi, setNewReviewInstansi] = useState('Kemenkumham (Penjaga Tahanan)');
   
   // CRUD Mentor states
   const [newMentorName, setNewMentorName] = useState('');
@@ -253,6 +288,126 @@ export default function AdminDashboard({
     setTimeout(() => setCmsSuccess(''), 3000);
   };
 
+  // Add Benefit
+  const handleAddBenefit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBenefitTitle || !newBenefitDesc) return;
+
+    const newBenefit: Benefit = {
+      id: 'b_' + Date.now(),
+      title: newBenefitTitle,
+      description: newBenefitDesc,
+      iconName: newBenefitIcon
+    };
+
+    onUpdateBenefits([newBenefit, ...benefits]);
+    setNewBenefitTitle('');
+    setNewBenefitDesc('');
+  };
+
+  // Delete Benefit
+  const handleDeleteBenefit = (id: string) => {
+    if (confirm('Apakah Anda yakin ingin menghapus benefit ini?')) {
+      onUpdateBenefits(benefits.filter(b => b.id !== id));
+    }
+  };
+
+  // Add / Edit Facility
+  const handleAddFacility = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFacilityTitle || !newFacilityDesc || !newFacilityImage) return;
+
+    if (editingFacilityId) {
+      const updated = facilities.map(f => {
+        if (f.id === editingFacilityId) {
+          return {
+            ...f,
+            title: newFacilityTitle,
+            description: newFacilityDesc,
+            image: newFacilityImage,
+            badge: newFacilityBadge || undefined,
+            ratingText: newFacilityRating || undefined
+          };
+        }
+        return f;
+      });
+      onUpdateFacilities(updated);
+      setEditingFacilityId(null);
+    } else {
+      const newFacility: Facility = {
+        id: 'f_' + Date.now(),
+        title: newFacilityTitle,
+        description: newFacilityDesc,
+        image: newFacilityImage,
+        badge: newFacilityBadge || undefined,
+        ratingText: newFacilityRating || undefined
+      };
+      onUpdateFacilities([newFacility, ...facilities]);
+    }
+
+    setNewFacilityTitle('');
+    setNewFacilityDesc('');
+    setNewFacilityBadge('Premium');
+    setNewFacilityRating('Hotel Bintang 3');
+    setNewFacilityImage('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&auto=format&fit=crop&q=80');
+  };
+
+  const handleStartEditFacility = (facility: Facility) => {
+    setEditingFacilityId(facility.id);
+    setNewFacilityTitle(facility.title);
+    setNewFacilityDesc(facility.description);
+    setNewFacilityImage(facility.image);
+    setNewFacilityBadge(facility.badge || '');
+    setNewFacilityRating(facility.ratingText || '');
+  };
+
+  const handleCancelEditFacility = () => {
+    setEditingFacilityId(null);
+    setNewFacilityTitle('');
+    setNewFacilityDesc('');
+    setNewFacilityBadge('Premium');
+    setNewFacilityRating('Hotel Bintang 3');
+    setNewFacilityImage('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&auto=format&fit=crop&q=80');
+  };
+
+  // Delete Facility
+  const handleDeleteFacility = (id: string) => {
+    if (confirm('Apakah Anda yakin ingin menghapus fasilitas ini?')) {
+      onUpdateFacilities(facilities.filter(f => f.id !== id));
+      if (editingFacilityId === id) {
+        handleCancelEditFacility();
+      }
+    }
+  };
+
+  // Add Review
+  const handleAddReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReviewName || !newReviewText) return;
+
+    const newReview: Testimonial = {
+      id: 't_' + Date.now(),
+      name: newReviewName,
+      role: newReviewRole,
+      text: newReviewText,
+      rating: Number(newReviewRating),
+      image: newReviewImage,
+      instansi: newReviewInstansi
+    };
+
+    onUpdateTestimonials([newReview, ...testimonials]);
+    setNewReviewName('');
+    setNewReviewText('');
+    setNewReviewInstansi('Kemenkumham (Penjaga Tahanan)');
+  };
+
+  // Delete Review
+  const handleDeleteReview = (id: string) => {
+    if (confirm('Apakah Anda yakin ingin menghapus ulasan ini?')) {
+      onUpdateTestimonials(testimonials.filter(t => t.id !== id));
+    }
+  };
+
   // Filtered list of registered students
   const filteredStudents = users.filter(u => 
     u.role === 'Peserta' && 
@@ -363,6 +518,42 @@ export default function AdminDashboard({
                   >
                     <Users className="w-4 h-4" />
                     <span>Kelola Pengajar (Mentors)</span>
+                  </button>
+                )}
+
+                {/* Benefits available to Super Admin, Admin, Marketing */}
+                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                  <button 
+                    id="admin-tab-benefits"
+                    onClick={() => selectTab('benefits')}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'benefits' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  >
+                    <Award className="w-4 h-4" />
+                    <span>Kelola Benefit</span>
+                  </button>
+                )}
+
+                {/* Facilities available to Super Admin, Admin, Marketing */}
+                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                  <button 
+                    id="admin-tab-facilities"
+                    onClick={() => selectTab('facilities')}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'facilities' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Kelola Fasilitas</span>
+                  </button>
+                )}
+
+                {/* Reviews/Testimonials available to Super Admin, Admin, Marketing */}
+                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                  <button 
+                    id="admin-tab-reviews"
+                    onClick={() => selectTab('reviews')}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'reviews' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  >
+                    <Star className="w-4 h-4" />
+                    <span>Kelola Review</span>
                   </button>
                 )}
 
@@ -1091,6 +1282,481 @@ export default function AdminDashboard({
 
                 </form>
 
+              </div>
+            </div>
+          )}
+
+          {/* TAB 7: BENEFITS CRUD PANEL */}
+          {activeTab === 'benefits' && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="border-b border-gray-200 pb-5">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900">Kelola Benefit Program</h2>
+                <p className="text-xs text-gray-500 mt-1">Ubah atau tambahkan benefit unggulan program Karantina untuk menarik calon peserta.</p>
+              </div>
+
+              <div className="grid lg:grid-cols-12 gap-8">
+                {/* Form to add */}
+                <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
+                  <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
+                    <Plus className="w-5 h-5 text-primary" />
+                    <span>Tambahkan Benefit Baru</span>
+                  </h4>
+
+                  <form onSubmit={handleAddBenefit} className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block">Judul Benefit:</label>
+                      <input 
+                        id="new-benefit-title"
+                        type="text"
+                        required
+                        placeholder="Contoh: Modul Kunci Sukses SKD 2026"
+                        value={newBenefitTitle}
+                        onChange={(e) => setNewBenefitTitle(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block">Icon Deskriptif:</label>
+                      <select 
+                        id="new-benefit-icon"
+                        value={newBenefitIcon}
+                        onChange={(e) => setNewBenefitIcon(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-xs outline-none cursor-pointer"
+                      >
+                        <option value="Clock">🕒 Clock (Waktu/Jadwal)</option>
+                        <option value="Users">👥 Users (Grup/Mentor)</option>
+                        <option value="Laptop">💻 Laptop (CAT/Simulasi)</option>
+                        <option value="Calendar">📅 Calendar (Durasi/Agenda)</option>
+                        <option value="TrendingUp">📈 Trending Up (Peluang/Progress)</option>
+                        <option value="BookOpen">📖 Book Open (Materi/Modul)</option>
+                        <option value="FileCheck">☑ File Check (Kelulusan)</option>
+                        <option value="Target">🎯 Target (Fokus/Target)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block">Penjelasan Singkat:</label>
+                      <textarea 
+                        id="new-benefit-desc"
+                        rows={3}
+                        required
+                        placeholder="Berikan penjelasan singkat yang menarik..."
+                        value={newBenefitDesc}
+                        onChange={(e) => setNewBenefitDesc(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none resize-none"
+                      ></textarea>
+                    </div>
+
+                    <button 
+                      id="new-benefit-submit"
+                      type="submit"
+                      className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer"
+                    >
+                      Tambahkan Benefit
+                    </button>
+                  </form>
+                </div>
+
+                {/* Benefits List */}
+                <div className="lg:col-span-7 space-y-4">
+                  <h4 className="font-extrabold text-gray-900 text-base">Daftar Benefit Aktif ({benefits.length})</h4>
+                  
+                  <div className="space-y-3">
+                    {benefits.map((b) => (
+                      <div key={b.id} className="bg-white p-5 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-start gap-4 text-xs">
+                        <div className="flex gap-3 items-start">
+                          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0 font-bold">
+                            <Award className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <strong className="text-gray-900 block text-sm font-bold">{b.title}</strong>
+                            <p className="text-gray-500 mt-1 leading-relaxed text-xs">{b.description}</p>
+                          </div>
+                        </div>
+
+                        <button 
+                          id={`delete-benefit-btn-${b.id}`}
+                          onClick={() => handleDeleteBenefit(b.id)}
+                          className="text-gray-400 hover:text-red-600 p-2 rounded-lg shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 8: FACILITIES CRUD PANEL */}
+          {activeTab === 'facilities' && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="border-b border-gray-200 pb-5">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900">Kelola Fasilitas Karantina</h2>
+                <p className="text-xs text-gray-500 mt-1">Sajikan akomodasi bintang 3, ruang belajar eksklusif, dan fasilitas pendukung karantina lainnya.</p>
+              </div>
+
+              <div className="grid lg:grid-cols-12 gap-8">
+                {/* Form to add */}
+                <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
+                  <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
+                    {editingFacilityId ? (
+                      <>
+                        <Edit3 className="w-5 h-5 text-amber-500" />
+                        <span>Ubah Detail Fasilitas</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5 text-primary" />
+                        <span>Tambahkan Fasilitas Baru</span>
+                      </>
+                    )}
+                  </h4>
+
+                  <form onSubmit={handleAddFacility} className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block">Nama Fasilitas:</label>
+                      <input 
+                        id="new-facility-title"
+                        type="text"
+                        required
+                        placeholder="Contoh: Kamar Hotel Twin-Sharing AC"
+                        value={newFacilityTitle}
+                        onChange={(e) => setNewFacilityTitle(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-700 block">Badge Label:</label>
+                        <input 
+                          id="new-facility-badge"
+                          type="text"
+                          placeholder="Contoh: Hotel Bintang 3"
+                          value={newFacilityBadge}
+                          onChange={(e) => setNewFacilityBadge(e.target.value)}
+                          className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-xs outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-700 block">Status / Rating:</label>
+                        <input 
+                          id="new-facility-rating"
+                          type="text"
+                          placeholder="Contoh: Premium Comfort"
+                          value={newFacilityRating}
+                          onChange={(e) => setNewFacilityRating(e.target.value)}
+                          className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-xs outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block flex items-center justify-between">
+                        <span>Foto Fasilitas:</span>
+                        <span className="text-[10px] text-gray-400">Upload foto lokal</span>
+                      </label>
+                      <div className="flex items-center gap-3">
+                        {newFacilityImage ? (
+                          <div className="relative w-20 h-16 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shrink-0">
+                            <img 
+                              src={newFacilityImage} 
+                              alt="Preview" 
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setNewFacilityImage('')}
+                              className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white p-0.5 rounded-full shadow transition-colors"
+                              title="Hapus foto"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-20 h-16 rounded-xl border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center shrink-0">
+                            <span className="text-[9px] text-gray-400 text-center">Belum ada foto</span>
+                          </div>
+                        )}
+                        <label className="flex-1 bg-primary/10 hover:bg-primary/20 text-primary font-bold px-4 py-3 rounded-xl text-xs cursor-pointer flex items-center justify-center gap-1.5 transition-all border border-dashed border-primary/20">
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>{newFacilityImage ? 'Ganti Foto' : 'Upload Foto'}</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  if (typeof reader.result === 'string') {
+                                    setNewFacilityImage(reader.result);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block">Deskripsi Detail:</label>
+                      <textarea 
+                        id="new-facility-desc"
+                        rows={3}
+                        required
+                        placeholder="Terangkan keunggulan dan spesifikasi lengkap fasilitas..."
+                        value={newFacilityDesc}
+                        onChange={(e) => setNewFacilityDesc(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none resize-none"
+                      ></textarea>
+                    </div>
+
+                    <div className="flex gap-3">
+                      {editingFacilityId && (
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditFacility}
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl transition-all text-xs cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                      )}
+                      <button 
+                        id="new-facility-submit"
+                        type="submit"
+                        className={`font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer ${editingFacilityId ? 'flex-1 bg-amber-500 hover:bg-amber-600 text-white' : 'w-full bg-primary hover:bg-secondary text-white'}`}
+                      >
+                        {editingFacilityId ? 'Simpan Perubahan' : 'Tambahkan Fasilitas'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Facilities List */}
+                <div className="lg:col-span-7 space-y-4">
+                  <h4 className="font-extrabold text-gray-900 text-base">Daftar Fasilitas Aktif ({facilities.length})</h4>
+                  
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {facilities.map((f) => (
+                      <div key={f.id} className="bg-white rounded-2xl border border-gray-150 overflow-hidden shadow-xs flex flex-col justify-between text-xs">
+                        <div className="relative h-40 bg-gray-100">
+                          <img 
+                            src={f.image} 
+                            alt={f.title}
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                          {f.badge && (
+                            <span className="absolute top-3 left-3 bg-primary text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                              {f.badge}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="p-4 space-y-2 flex-1">
+                          <div className="flex justify-between items-center text-[10px] text-primary font-bold uppercase">
+                            <span>{f.ratingText || 'Tersedia'}</span>
+                          </div>
+                          <strong className="text-gray-900 block text-sm font-extrabold leading-tight">{f.title}</strong>
+                          <p className="text-gray-500 leading-relaxed text-xs line-clamp-3">{f.description}</p>
+                        </div>
+
+                        <div className="p-4 pt-0 flex justify-end gap-2 border-t border-gray-50 mt-2">
+                          <button
+                            id={`edit-facility-btn-${f.id}`}
+                            onClick={() => handleStartEditFacility(f)}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[10px] transition-colors cursor-pointer border border-amber-200/30"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>Ubah</span>
+                          </button>
+                          <button
+                            id={`delete-facility-btn-${f.id}`}
+                            onClick={() => handleDeleteFacility(f.id)}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] transition-colors cursor-pointer border border-red-200/30"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Hapus</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 9: REVIEWS CRUD PANEL */}
+          {activeTab === 'reviews' && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="border-b border-gray-200 pb-5">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900">Kelola Ulasan & Testimoni</h2>
+                <p className="text-xs text-gray-500 mt-1">Tampilkan testimoni kelulusan alumni asli CPNS sebagai bukti jaminan kualitas kelas karantina.</p>
+              </div>
+
+              <div className="grid lg:grid-cols-12 gap-8">
+                {/* Form to add */}
+                <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
+                  <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
+                    <Plus className="w-5 h-5 text-primary" />
+                    <span>Tambahkan Ulasan Baru</span>
+                  </h4>
+
+                  <form onSubmit={handleAddReview} className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block">Nama Alumni:</label>
+                      <input 
+                        id="new-review-name"
+                        type="text"
+                        required
+                        placeholder="Contoh: Rian Anggoro, S.Tr"
+                        value={newReviewName}
+                        onChange={(e) => setNewReviewName(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-700 block">Instansi Penempatan:</label>
+                        <input 
+                          id="new-review-instansi"
+                          type="text"
+                          required
+                          placeholder="Contoh: Kemenkumham"
+                          value={newReviewInstansi}
+                          onChange={(e) => setNewReviewInstansi(e.target.value)}
+                          className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-xs outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-700 block">Bintang (1-5):</label>
+                        <select 
+                          id="new-review-rating"
+                          value={newReviewRating}
+                          onChange={(e) => setNewReviewRating(Number(e.target.value))}
+                          className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 rounded-xl text-xs outline-none cursor-pointer font-bold"
+                        >
+                          <option value="5">⭐⭐⭐⭐⭐ 5 Star</option>
+                          <option value="4">⭐⭐⭐⭐ 4 Star</option>
+                          <option value="3">⭐⭐⭐ 3 Star</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block flex items-center justify-between">
+                        <span>URL Foto Profil:</span>
+                        <span className="text-[10px] text-gray-400">Bisa upload foto lokal</span>
+                      </label>
+                      <div className="flex gap-2">
+                        <input 
+                          id="new-review-image"
+                          type="text"
+                          required
+                          placeholder="Masukkan URL Avatar atau upload..."
+                          value={newReviewImage}
+                          onChange={(e) => setNewReviewImage(e.target.value)}
+                          className="flex-1 px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none"
+                        />
+                        <label className="bg-primary/10 hover:bg-primary/20 text-primary font-bold px-4 py-3 rounded-xl text-xs cursor-pointer flex items-center gap-1.5 transition-all whitespace-nowrap border border-primary/20">
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Upload</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  if (typeof reader.result === 'string') {
+                                    setNewReviewImage(reader.result);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700 block">Isi Ulasan Testimoni:</label>
+                      <textarea 
+                        id="new-review-text"
+                        rows={4}
+                        required
+                        placeholder="Tuliskan cerita kelulusan dan kesan pesan alumni terhadap program bimbingan..."
+                        value={newReviewText}
+                        onChange={(e) => setNewReviewText(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#F8F9FA] border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-xs outline-none resize-none"
+                      ></textarea>
+                    </div>
+
+                    <button 
+                      id="new-review-submit"
+                      type="submit"
+                      className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer"
+                    >
+                      Tambahkan Ulasan Alumni
+                    </button>
+                  </form>
+                </div>
+
+                {/* Reviews List */}
+                <div className="lg:col-span-7 space-y-4">
+                  <h4 className="font-extrabold text-gray-900 text-base">Testimoni Alumni Aktif ({testimonials.length})</h4>
+                  
+                  <div className="space-y-3">
+                    {testimonials.map((t) => (
+                      <div key={t.id} className="bg-white p-5 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-start gap-4 text-xs">
+                        <div className="flex gap-3 items-start">
+                          <img 
+                            src={t.image} 
+                            alt={t.name}
+                            className="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <strong className="text-gray-900 block text-sm font-bold">{t.name}</strong>
+                              <span className="text-[10px] bg-green-50 text-green-700 font-bold px-2 py-0.5 rounded-md border border-green-200">Lolos CPNS</span>
+                            </div>
+                            <span className="text-gray-400 block text-[10px] mt-0.5">{t.instansi} • {t.role}</span>
+                            <div className="flex items-center gap-0.5 my-1.5 text-amber-500">
+                              {Array.from({ length: t.rating || 5 }).map((_, i) => (
+                                <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                              ))}
+                            </div>
+                            <p className="text-gray-500 leading-relaxed text-xs italic">"{t.text}"</p>
+                          </div>
+                        </div>
+
+                        <button 
+                          id={`delete-review-btn-${t.id}`}
+                          onClick={() => handleDeleteReview(t.id)}
+                          className="text-gray-400 hover:text-red-600 p-2 rounded-lg shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}

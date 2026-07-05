@@ -11,9 +11,11 @@ import {
   INITIAL_ANNOUNCEMENTS, 
   INITIAL_CMS_DATA,
   INITIAL_FAQS,
-  INITIAL_TESTIMONIALS
+  INITIAL_TESTIMONIALS,
+  INITIAL_BENEFITS,
+  INITIAL_FACILITIES
 } from './data';
-import { AppUser, Mentor, LearningMaterial, Tryout, TryoutResult, Announcement, LandingPageCMS, FAQItem, Testimonial } from './types';
+import { AppUser, Mentor, LearningMaterial, Tryout, TryoutResult, Announcement, LandingPageCMS, FAQItem, Testimonial, Benefit, Facility } from './types';
 
 // Default mock accounts pre-configured for live demo and evaluation
 const DEFAULT_USERS: AppUser[] = [
@@ -223,6 +225,16 @@ export default function App() {
     return INITIAL_CMS_DATA;
   });
 
+  const [benefits, setBenefits] = useState<Benefit[]>(() => {
+    const saved = localStorage.getItem('mentorcpns_benefits');
+    return saved ? JSON.parse(saved) : INITIAL_BENEFITS;
+  });
+
+  const [facilities, setFacilities] = useState<Facility[]>(() => {
+    const saved = localStorage.getItem('mentorcpns_facilities');
+    return saved ? JSON.parse(saved) : INITIAL_FACILITIES;
+  });
+
   // Keep state synchronized in local storage
   useEffect(() => {
     localStorage.setItem('mentorcpns_users', JSON.stringify(users));
@@ -259,6 +271,14 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('mentorcpns_cms', JSON.stringify(cms));
   }, [cms]);
+
+  useEffect(() => {
+    localStorage.setItem('mentorcpns_benefits', JSON.stringify(benefits));
+  }, [benefits]);
+
+  useEffect(() => {
+    localStorage.setItem('mentorcpns_facilities', JSON.stringify(facilities));
+  }, [facilities]);
 
   // Load and listen to Supabase session to protect private pages
   useEffect(() => {
@@ -418,6 +438,8 @@ export default function App() {
           mentors={mentors}
           faqs={faqs}
           testimonials={testimonials}
+          benefits={benefits}
+          facilities={facilities}
           user={currentUser}
           onNavigate={handleNavigation}
         />
@@ -457,6 +479,11 @@ export default function App() {
           materials={materials}
           tryouts={tryouts}
           cms={cms}
+          benefits={benefits}
+          onUpdateBenefits={setBenefits}
+          facilities={facilities}
+          onUpdateFacilities={setFacilities}
+          onUpdateTestimonials={setTestimonials}
           onUpdateCMS={handleUpdateCMS}
           onUpdateUsers={handleUpdateUsers}
           onUpdateMentors={handleUpdateMentors}

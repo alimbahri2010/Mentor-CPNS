@@ -1,4 +1,4 @@
-import { Mentor, FAQItem, Testimonial, LearningMaterial, Tryout, LandingPageCMS, Announcement } from './types';
+import { Mentor, FAQItem, Testimonial, LearningMaterial, Tryout, LandingPageCMS, Announcement, Benefit, Facility } from './types';
 
 export const INITIAL_MENTORS: Mentor[] = [
   {
@@ -335,3 +335,101 @@ export const INITIAL_CMS_DATA: LandingPageCMS = {
   showPromoBanner: true,
   promoText: '🔥 KUOTA TERBATAS! Tersisa 10 Kursi Karantina Lagi. Segera Amankan Kursi Anda Sekarang Juga!'
 };
+
+export const INITIAL_BENEFITS: Benefit[] = [
+  {
+    id: 'b1',
+    title: 'Belajar Intensif 30 Hari',
+    description: 'Durasi belajar penuh pagi, siang, dan malam dengan pembagian modul materi yang teratur agar seluruh silabus terkuasai tuntas.',
+    iconName: 'Clock'
+  },
+  {
+    id: 'b2',
+    title: 'Didampingi Mentor PNS/ASN Aktif Berpengalaman',
+    description: 'Interaksi intens bersama PNS Kemenkumham, Dosen, serta ahli TWK, TIU, dan TKP secara tatap muka langsung setiap hari.',
+    iconName: 'Users'
+  },
+  {
+    id: 'b3',
+    title: 'Simulasi & Latihan CAT Berkala',
+    description: 'Latihan menguji kesiapan mental menghadapi sistem acak komputer CAT, analisis ketepatan, dan trik waktu pengerjaan.',
+    iconName: 'Laptop'
+  },
+  {
+    id: 'b4',
+    title: 'Pendampingan Harian yang Fokus',
+    description: 'Setiap peserta akan dievaluasi langsung oleh tim mentor harian untuk mendeteksi sub-materi apa saja yang belum tuntas dikuasai.',
+    iconName: 'Calendar'
+  },
+  {
+    id: 'b5',
+    title: 'Evaluasi Perkembangan Terarah',
+    description: 'Laporan nilai berkala yang memetakan perkembangan grafik skor tryout Anda dari awal karantina hingga siap ujian resmi.',
+    iconName: 'TrendingUp'
+  },
+  {
+    id: 'b6',
+    title: 'Modul Belajar Super Lengkap',
+    description: 'Mendapatkan bundel modul fisik (buku cetak eksklusif) dan akses materi video penjelasan serta PDF digital yang komprehensif.',
+    iconName: 'BookOpen'
+  },
+  {
+    id: 'b7',
+    title: 'Pendampingan Pendaftaran/Pemberkasan',
+    description: 'Bimbingan langkah demi langkah dalam menyiapkan berkas administrasi, surat pernyataan, hingga proses upload di portal SSCASN tanpa keliru.',
+    iconName: 'FileCheck'
+  },
+  {
+    id: 'b8',
+    title: 'Konsultasi Pemilihan Formasi & Instansi',
+    description: 'Analisis peluang kelulusan berdasarkan peta persaingan formasi tahun sebelumnya, kuota instansi, dan kualifikasi jurusan Anda.',
+    iconName: 'Target'
+  }
+];
+
+export const INITIAL_FACILITIES: Facility[] = [
+  {
+    id: 'f1',
+    title: 'Hotel Sultan Alauddin Makassar',
+    description: 'Peserta akan tinggal dan belajar di kawasan hotel bintang 3 nyaman, bersih, berlokasi strategis di kota Makassar.',
+    image: '/assets/images/regenerated_image_1782968339729.jpg',
+    badge: 'Lokasi Utama',
+    ratingText: 'Hotel Bintang 3'
+  },
+  {
+    id: 'f2',
+    title: '3x Makan & 2x Coffee Break',
+    description: 'Nutrisi harian terjamin. Makan pagi, siang, dan malam dengan menu sehat bervariasi, ditambah makanan ringan harian di sela kelas.',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80',
+    badge: 'All-Inclusive'
+  },
+  {
+    id: 'f3',
+    title: 'Kamar & Tempat Belajar Premium',
+    description: 'Kamar menginap ber-AC, tempat tidur nyaman, air hangat, serta akses ruang belajar khusus berfasilitas lengkap bebas bising.',
+    image: '/assets/images/regenerated_image_1782968341041.jpg',
+    badge: 'Kondusif'
+  },
+  {
+    id: 'f4',
+    title: 'Latihan Samapta (Fisik)',
+    description: 'Khusus formasi penjaga tahanan / dinas terkait, kami siapkan latihan ketahanan fisik dibimbing oleh instruktur profesional.',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80',
+    badge: 'Khusus'
+  },
+  {
+    id: 'f5',
+    title: 'Latihan Beladiri (Silat)',
+    description: 'Membekali ketahanan diri fisik dengan latihan pencak silat berkala, sangat berguna untuk nilai tambah wawancara dan instansi.',
+    image: '/assets/images/regenerated_image_1782968336832.jpg',
+    badge: 'Fisik'
+  },
+  {
+    id: 'f6',
+    title: 'Latihan Komputer CAT Riil',
+    description: 'Latihan langsung di depan komputer dengan software CAT simulasi yang mensimulasikan persis tampilan waktu, tata letak soal ujian BKN.',
+    image: '/assets/images/regenerated_image_1782968481370.jpg',
+    badge: 'Simulasi CAT'
+  }
+];
+

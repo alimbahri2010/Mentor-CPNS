@@ -20,6 +20,7 @@ export interface Testimonial {
   id: string;
   name: string;
   instansi: string;
+  role?: string;
   text: string;
   rating: number;
   image: string;
@@ -113,3 +114,20 @@ export interface LandingPageCMS {
   showPromoBanner: boolean;
   promoText: string;
 }
+
+export interface Benefit {
+  id: string;
+  title: string;
+  description: string;
+  iconName?: string;
+}
+
+export interface Facility {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  badge?: string;
+  ratingText?: string;
+}
+
