@@ -50,6 +50,7 @@ interface AdminDashboardProps {
   onUpdateMaterials: (updatedMaterials: LearningMaterial[]) => void;
   onUpdateTryouts: (updatedTryouts: Tryout[]) => void;
   onLogout: () => void;
+  onNavigate?: (page: string) => void;
   dbErrors?: { [table: string]: string };
 }
 
@@ -73,6 +74,7 @@ export default function AdminDashboard({
   onUpdateMaterials,
   onUpdateTryouts,
   onLogout,
+  onNavigate,
   dbErrors = {}
 }: AdminDashboardProps) {
 
@@ -647,10 +649,20 @@ export default function AdminDashboard({
         <div className="flex items-center gap-4">
 
           <div className="flex items-center gap-3">
+            {onNavigate && (
+              <button 
+                id="admin-view-website-btn"
+                onClick={() => onNavigate('landing')}
+                className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+              >
+                <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                <span className="hidden sm:inline">Lihat Landing Page</span>
+              </button>
+            )}
             <button 
               id="admin-logout-btn"
               onClick={onLogout}
-              className="bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
             >
               <LogOut className="w-4 h-4 shrink-0" />
               <span className="hidden sm:inline">Keluar Admin</span>

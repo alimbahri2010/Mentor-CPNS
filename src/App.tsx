@@ -86,23 +86,39 @@ const DEFAULT_USERS: AppUser[] = [
   }
 ];
 
+const isMockUser = (user: AppUser | null): boolean => {
+  if (!user) return false;
+  return user.id.startsWith('u_') || user.password !== '' || DEFAULT_USERS.some(u => u.id === user.id);
+};
+
 export default function App() {
   
   // Navigation State
   const [page, setPage] = useState<string>('landing');
   
   // Session State
-  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(() => {
+    try {
+      const saved = localStorage.getItem('mentorcpns_current_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error('Error parsing currentUser from localStorage:', e);
+      return null;
+    }
+  });
 
   // Core App states synchronizing from localStorage (or falling back to initial mock lists)
   const [users, setUsers] = useState<AppUser[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_users');
-      return saved ? JSON.parse(saved) : DEFAULT_USERS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing users state:', e);
-      return DEFAULT_USERS;
     }
+    return DEFAULT_USERS;
   });
 
   const [mentors, setMentors] = useState<Mentor[]>(() => {
@@ -110,57 +126,59 @@ export default function App() {
       const saved = localStorage.getItem('mentorcpns_mentors');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.map((item: any) => {
-          if (item.id === 'm1') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782965951292.png'
-            };
-          }
-          if (item.id === 'm2') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782966185611.png'
-            };
-          }
-          if (item.id === 'm3') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782966747706.png'
-            };
-          }
-          if (item.id === 'm4') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782966744893.png'
-            };
-          }
-          if (item.id === 'm5') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782966741727.png'
-            };
-          }
-          if (item.id === 'm6') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782966739196.png'
-            };
-          }
-          if (item.id === 'm7') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782966903383.png'
-            };
-          }
-          if (item.id === 'm8') {
-            return {
-              ...item,
-              image: '/assets/images/regenerated_image_1782966736522.png'
-            };
-          }
-          return item;
-        });
+        if (Array.isArray(parsed)) {
+          return parsed.map((item: any) => {
+            if (item.id === 'm1') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782965951292.png'
+              };
+            }
+            if (item.id === 'm2') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782966185611.png'
+              };
+            }
+            if (item.id === 'm3') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782966747706.png'
+              };
+            }
+            if (item.id === 'm4') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782966744893.png'
+              };
+            }
+            if (item.id === 'm5') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782966741727.png'
+              };
+            }
+            if (item.id === 'm6') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782966739196.png'
+              };
+            }
+            if (item.id === 'm7') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782966903383.png'
+              };
+            }
+            if (item.id === 'm8') {
+              return {
+                ...item,
+                image: '/assets/images/regenerated_image_1782966736522.png'
+              };
+            }
+            return item;
+          });
+        }
       }
     } catch (e) {
       console.error('Error parsing mentors state:', e);
@@ -171,41 +189,53 @@ export default function App() {
   const [materials, setMaterials] = useState<LearningMaterial[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_materials');
-      return saved ? JSON.parse(saved) : INITIAL_MATERIALS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing materials state:', e);
-      return INITIAL_MATERIALS;
     }
+    return INITIAL_MATERIALS;
   });
 
   const [tryouts, setTryouts] = useState<Tryout[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_tryouts');
-      return saved ? JSON.parse(saved) : INITIAL_TRYOUTS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing tryouts state:', e);
-      return INITIAL_TRYOUTS;
     }
+    return INITIAL_TRYOUTS;
   });
 
   const [tryoutResults, setTryoutResults] = useState<TryoutResult[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_tryout_results');
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing tryoutResults state:', e);
-      return [];
     }
+    return [];
   });
 
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_announcements');
-      return saved ? JSON.parse(saved) : INITIAL_ANNOUNCEMENTS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing announcements state:', e);
-      return INITIAL_ANNOUNCEMENTS;
     }
+    return INITIAL_ANNOUNCEMENTS;
   });
 
   const [faqs, setFaqs] = useState<FAQItem[]>(() => {
@@ -213,22 +243,24 @@ export default function App() {
       const saved = localStorage.getItem('mentorcpns_faqs');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.map((item: any) => {
-          if (item.id === 'faq4' && item.question.includes('30.000.000')) {
-            return {
-              ...item,
-              question: item.question.replace('30.000.000', '40.000.000')
-            };
-          }
-          if (item.id === 'faq1' && (item.question.includes('SKD') || !item.answer.includes('Agustus'))) {
-            return {
-              ...item,
-              question: 'Kapan program karantina SKB CAT CPNS 2026 dimulai?',
-              answer: 'Program bimbingan karantina intensif akan dimulai pada bulan Agustus 2026, dilaksanakan selama 30 hari penuh secara tatap muka menjelang pelaksanaan ujian resmi SKB CPNS 2026.'
-            };
-          }
-          return item;
-        });
+        if (Array.isArray(parsed)) {
+          return parsed.map((item: any) => {
+            if (item.id === 'faq4' && item.question.includes('30.000.000')) {
+              return {
+                ...item,
+                question: item.question.replace('30.000.000', '40.000.000')
+              };
+            }
+            if (item.id === 'faq1' && (item.question.includes('SKD') || !item.answer.includes('Agustus'))) {
+              return {
+                ...item,
+                question: 'Kapan program karantina SKB CAT CPNS 2026 dimulai?',
+                answer: 'Program bimbingan karantina intensif akan dimulai pada bulan Agustus 2026, dilaksanakan selama 30 hari penuh secara tatap muka menjelang pelaksanaan ujian resmi SKB CPNS 2026.'
+              };
+            }
+            return item;
+          });
+        }
       }
     } catch (e) {
       console.error('Error parsing faqs state:', e);
@@ -239,11 +271,14 @@ export default function App() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_testimonials');
-      return saved ? JSON.parse(saved) : INITIAL_TESTIMONIALS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing testimonials state:', e);
-      return INITIAL_TESTIMONIALS;
     }
+    return INITIAL_TESTIMONIALS;
   });
 
   const [cms, setCms] = useState<LandingPageCMS>(() => {
@@ -251,15 +286,17 @@ export default function App() {
       const saved = localStorage.getItem('mentorcpns_cms');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.priceNow === 30000000) {
-          parsed.priceNow = 40000000;
-          parsed.priceOriginal = 55000000;
-          parsed.pricePromo = 48000000;
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.priceNow === 30000000) {
+            parsed.priceNow = 40000000;
+            parsed.priceOriginal = 55000000;
+            parsed.pricePromo = 48000000;
+          }
+          if (parsed.whatsappNumber === '6281234567890' || !parsed.whatsappNumber) {
+            parsed.whatsappNumber = '6285242308996';
+          }
+          return parsed;
         }
-        if (parsed.whatsappNumber === '6281234567890' || !parsed.whatsappNumber) {
-          parsed.whatsappNumber = '6285242308996';
-        }
-        return parsed;
       }
     } catch (e) {
       console.error('Error parsing cms state:', e);
@@ -270,21 +307,27 @@ export default function App() {
   const [benefits, setBenefits] = useState<Benefit[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_benefits');
-      return saved ? JSON.parse(saved) : INITIAL_BENEFITS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing benefits state:', e);
-      return INITIAL_BENEFITS;
     }
+    return INITIAL_BENEFITS;
   });
 
   const [facilities, setFacilities] = useState<Facility[]>(() => {
     try {
       const saved = localStorage.getItem('mentorcpns_facilities');
-      return saved ? JSON.parse(saved) : INITIAL_FACILITIES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error('Error parsing facilities state:', e);
-      return INITIAL_FACILITIES;
     }
+    return INITIAL_FACILITIES;
   });
 
   const [dbErrors, setDbErrors] = useState<{ [table: string]: string }>({});
@@ -333,6 +376,14 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('mentorcpns_facilities', JSON.stringify(facilities));
   }, [facilities]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('mentorcpns_current_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('mentorcpns_current_user');
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchSupabaseData = async () => {
@@ -474,10 +525,28 @@ export default function App() {
           };
           setCurrentUser(userObj);
         } else {
-          setCurrentUser(null);
-          if (page === 'user-dashboard' || page === 'admin-dashboard') {
-            setPage('auth');
+          // If no Supabase session, check if we have a saved mock user in localStorage
+          const savedUserStr = localStorage.getItem('mentorcpns_current_user');
+          if (savedUserStr) {
+            try {
+              const savedUser = JSON.parse(savedUserStr);
+              if (savedUser && isMockUser(savedUser)) {
+                // Keep the mock user logged in!
+                setCurrentUser(savedUser);
+                return;
+              }
+            } catch (e) {
+              console.error('Error parsing saved mock user:', e);
+            }
           }
+          
+          setCurrentUser(null);
+          setPage(current => {
+            if (current === 'user-dashboard' || current === 'admin-dashboard') {
+              return 'landing';
+            }
+            return current;
+          });
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -503,10 +572,28 @@ export default function App() {
           };
           setCurrentUser(userObj);
         } else {
-          setCurrentUser(null);
-          if (page === 'user-dashboard' || page === 'admin-dashboard') {
-            setPage('auth');
+          // If no Supabase session, check if we have a saved mock user in localStorage
+          const savedUserStr = localStorage.getItem('mentorcpns_current_user');
+          if (savedUserStr) {
+            try {
+              const savedUser = JSON.parse(savedUserStr);
+              if (savedUser && isMockUser(savedUser)) {
+                // Keep the mock user logged in!
+                setCurrentUser(savedUser);
+                return;
+              }
+            } catch (e) {
+              console.error('Error parsing saved mock user in onAuthStateChange:', e);
+            }
           }
+          
+          setCurrentUser(null);
+          setPage(current => {
+            if (current === 'user-dashboard' || current === 'admin-dashboard') {
+              return 'landing';
+            }
+            return current;
+          });
         }
       });
       subscription = data?.subscription;
@@ -523,7 +610,7 @@ export default function App() {
         }
       }
     };
-  }, [page]);
+  }, []);
 
   // Navigation controller
   const handleNavigation = (targetPage: string) => {
@@ -815,6 +902,7 @@ export default function App() {
           onUpdateMaterials={handleUpdateMaterials}
           onUpdateTryouts={handleUpdateTryouts}
           onLogout={handleLogout}
+          onNavigate={handleNavigation}
           dbErrors={dbErrors}
         />
       )}
