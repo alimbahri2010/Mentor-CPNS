@@ -284,100 +284,104 @@ export default function App() {
 
   useEffect(() => {
     const fetchSupabaseData = async () => {
-      // 1. Fetch mentors
-      const { data: mentorsData, error: mentorsError } = await supabase.from('mentors').select('*');
-      if (!mentorsError) {
-        if (mentorsData) {
-          setMentors(mentorsData);
+      try {
+        // 1. Fetch mentors
+        const { data: mentorsData, error: mentorsError } = await supabase.from('mentors').select('*');
+        if (!mentorsError) {
+          if (mentorsData) {
+            setMentors(mentorsData);
+          }
+          setDbErrors(prev => {
+            const copy = { ...prev };
+            delete copy.mentors;
+            return copy;
+          });
+        } else {
+          console.warn('Could not load mentors from Supabase, using local state:', mentorsError);
+          setDbErrors(prev => ({
+            ...prev,
+            mentors: `${mentorsError.message} (Code: ${mentorsError.code})`
+          }));
         }
-        setDbErrors(prev => {
-          const copy = { ...prev };
-          delete copy.mentors;
-          return copy;
-        });
-      } else {
-        console.warn('Could not load mentors from Supabase, using local state:', mentorsError);
-        setDbErrors(prev => ({
-          ...prev,
-          mentors: `${mentorsError.message} (Code: ${mentorsError.code})`
-        }));
-      }
 
-      // 2. Fetch benefits
-      const { data: benefitsData, error: benefitsError } = await supabase.from('benefits').select('*');
-      if (!benefitsError) {
-        if (benefitsData) {
-          setBenefits(benefitsData.map((b: any) => ({
-            id: b.id,
-            title: b.title,
-            description: b.description,
-            iconName: b.iconName || b.icon_name || 'Clock'
-          })));
+        // 2. Fetch benefits
+        const { data: benefitsData, error: benefitsError } = await supabase.from('benefits').select('*');
+        if (!benefitsError) {
+          if (benefitsData) {
+            setBenefits(benefitsData.map((b: any) => ({
+              id: b.id,
+              title: b.title,
+              description: b.description,
+              iconName: b.iconName || b.icon_name || 'Clock'
+            })));
+          }
+          setDbErrors(prev => {
+            const copy = { ...prev };
+            delete copy.benefits;
+            return copy;
+          });
+        } else {
+          console.warn('Could not load benefits from Supabase, using local state:', benefitsError);
+          setDbErrors(prev => ({
+            ...prev,
+            benefits: `${benefitsError.message} (Code: ${benefitsError.code})`
+          }));
         }
-        setDbErrors(prev => {
-          const copy = { ...prev };
-          delete copy.benefits;
-          return copy;
-        });
-      } else {
-        console.warn('Could not load benefits from Supabase, using local state:', benefitsError);
-        setDbErrors(prev => ({
-          ...prev,
-          benefits: `${benefitsError.message} (Code: ${benefitsError.code})`
-        }));
-      }
 
-      // 3. Fetch facilities
-      const { data: facilitiesData, error: facilitiesError } = await supabase.from('facilities').select('*');
-      if (!facilitiesError) {
-        if (facilitiesData) {
-          setFacilities(facilitiesData.map((f: any) => ({
-            id: f.id,
-            title: f.title,
-            description: f.description,
-            image: f.image,
-            badge: f.badge,
-            ratingText: f.ratingText || f.rating_text
-          })));
+        // 3. Fetch facilities
+        const { data: facilitiesData, error: facilitiesError } = await supabase.from('facilities').select('*');
+        if (!facilitiesError) {
+          if (facilitiesData) {
+            setFacilities(facilitiesData.map((f: any) => ({
+              id: f.id,
+              title: f.title,
+              description: f.description,
+              image: f.image,
+              badge: f.badge,
+              ratingText: f.ratingText || f.rating_text
+            })));
+          }
+          setDbErrors(prev => {
+            const copy = { ...prev };
+            delete copy.facilities;
+            return copy;
+          });
+        } else {
+          console.warn('Could not load facilities from Supabase, using local state:', facilitiesError);
+          setDbErrors(prev => ({
+            ...prev,
+            facilities: `${facilitiesError.message} (Code: ${facilitiesError.code})`
+          }));
         }
-        setDbErrors(prev => {
-          const copy = { ...prev };
-          delete copy.facilities;
-          return copy;
-        });
-      } else {
-        console.warn('Could not load facilities from Supabase, using local state:', facilitiesError);
-        setDbErrors(prev => ({
-          ...prev,
-          facilities: `${facilitiesError.message} (Code: ${facilitiesError.code})`
-        }));
-      }
 
-      // 4. Fetch testimonials
-      const { data: testimonialsData, error: testimonialsError } = await supabase.from('testimonials').select('*');
-      if (!testimonialsError) {
-        if (testimonialsData) {
-          setTestimonials(testimonialsData.map((t: any) => ({
-            id: t.id,
-            name: t.name,
-            role: t.role,
-            text: t.text,
-            rating: Number(t.rating || 5),
-            image: t.image,
-            instansi: t.instansi
-          })));
+        // 4. Fetch testimonials
+        const { data: testimonialsData, error: testimonialsError } = await supabase.from('testimonials').select('*');
+        if (!testimonialsError) {
+          if (testimonialsData) {
+            setTestimonials(testimonialsData.map((t: any) => ({
+              id: t.id,
+              name: t.name,
+              role: t.role,
+              text: t.text,
+              rating: Number(t.rating || 5),
+              image: t.image,
+              instansi: t.instansi
+            })));
+          }
+          setDbErrors(prev => {
+            const copy = { ...prev };
+            delete copy.testimonials;
+            return copy;
+          });
+        } else {
+          console.warn('Could not load testimonials from Supabase, using local state:', testimonialsError);
+          setDbErrors(prev => ({
+            ...prev,
+            testimonials: `${testimonialsError.message} (Code: ${testimonialsError.code})`
+          }));
         }
-        setDbErrors(prev => {
-          const copy = { ...prev };
-          delete copy.testimonials;
-          return copy;
-        });
-      } else {
-        console.warn('Could not load testimonials from Supabase, using local state:', testimonialsError);
-        setDbErrors(prev => ({
-          ...prev,
-          testimonials: `${testimonialsError.message} (Code: ${testimonialsError.code})`
-        }));
+      } catch (err: any) {
+        console.error('Supabase fetch failed completely:', err);
       }
     };
 
@@ -386,57 +390,69 @@ export default function App() {
 
   // Load and listen to Supabase session to protect private pages
   useEffect(() => {
+    let subscription: any = null;
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && session.user) {
-        const userObj: AppUser = {
-          id: session.user.id,
-          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-          email: session.user.email || '',
-          password: '',
-          whatsapp: '-',
-          origin: 'Pusat',
-          targetInstansi: 'Admin Utama',
-          role: 'Admin',
-          status: 'Approved',
-          joinedAt: session.user.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-        };
-        setCurrentUser(userObj);
-      } else {
-        setCurrentUser(null);
-        if (page === 'user-dashboard' || page === 'admin-dashboard') {
-          setPage('auth');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          const userObj: AppUser = {
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+            email: session.user.email || '',
+            password: '',
+            whatsapp: '-',
+            origin: 'Pusat',
+            targetInstansi: 'Admin Utama',
+            role: 'Admin',
+            status: 'Approved',
+            joinedAt: session.user.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+          };
+          setCurrentUser(userObj);
+        } else {
+          setCurrentUser(null);
+          if (page === 'user-dashboard' || page === 'admin-dashboard') {
+            setPage('auth');
+          }
         }
+      } catch (err) {
+        console.error('Failed to get Supabase auth session:', err);
       }
     };
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session && session.user) {
-        const userObj: AppUser = {
-          id: session.user.id,
-          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-          email: session.user.email || '',
-          password: '',
-          whatsapp: '-',
-          origin: 'Pusat',
-          targetInstansi: 'Admin Utama',
-          role: 'Admin',
-          status: 'Approved',
-          joinedAt: session.user.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-        };
-        setCurrentUser(userObj);
-      } else {
-        setCurrentUser(null);
-        if (page === 'user-dashboard' || page === 'admin-dashboard') {
-          setPage('auth');
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session && session.user) {
+          const userObj: AppUser = {
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+            email: session.user.email || '',
+            password: '',
+            whatsapp: '-',
+            origin: 'Pusat',
+            targetInstansi: 'Admin Utama',
+            role: 'Admin',
+            status: 'Approved',
+            joinedAt: session.user.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+          };
+          setCurrentUser(userObj);
+        } else {
+          setCurrentUser(null);
+          if (page === 'user-dashboard' || page === 'admin-dashboard') {
+            setPage('auth');
+          }
         }
-      }
-    });
+      });
+      subscription = data?.subscription;
+    } catch (err) {
+      console.error('Failed to register Supabase auth listener:', err);
+    }
 
     return () => {
-      subscription.unsubscribe();
+      if (subscription) {
+        subscription.unsubscribe();
+      }
     };
   }, [page]);
 
