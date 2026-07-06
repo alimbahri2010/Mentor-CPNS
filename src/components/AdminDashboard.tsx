@@ -74,9 +74,9 @@ export default function AdminDashboard({
   onLogout
 }: AdminDashboardProps) {
 
-  // Current simulation role for testing different dashboards
-  const [currentRole, setCurrentRole] = useState<'Super Admin' | 'Admin' | 'Marketing' | 'Finance' | 'Mentor'>(
-    currentUser.role as any || 'Super Admin'
+  // Current role for dashboard view filtering
+  const [currentRole, setCurrentRole] = useState<'Admin' | 'Finance' | 'Mentor'>(
+    (currentUser.role as any) === 'Super Admin' || (currentUser.role as any) === 'Marketing' ? 'Admin' : (currentUser.role as any) || 'Admin'
   );
 
   const [activeTab, setActiveTab] = useState<'analytics' | 'registrations' | 'mentors' | 'materials' | 'tryouts' | 'cms' | 'settings' | 'benefits' | 'facilities' | 'reviews'>('analytics');
@@ -643,23 +643,6 @@ export default function AdminDashboard({
 
         {/* Role Switcher Selector for live testing */}
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
-            <span className="text-[10px] text-gray-500 font-bold uppercase">Simulasi Mode:</span>
-            <select 
-              id="role-simulator-select"
-              value={currentRole} 
-              onChange={(e) => {
-                setCurrentRole(e.target.value as any);
-                // Adjust active tabs depending on mock role to stay clean
-                if (e.target.value === 'Marketing') selectTab('cms');
-              }}
-              className="text-xs font-black text-primary bg-transparent outline-none cursor-pointer"
-            >
-              <option value="Super Admin">🏆 Super Admin</option>
-              <option value="Admin">🛠 Admin Utama</option>
-              <option value="Marketing">📢 Pemasaran (Marketing)</option>
-            </select>
-          </div>
 
           <div className="flex items-center gap-3">
             <button 
@@ -692,8 +675,8 @@ export default function AdminDashboard({
               <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black block px-3">Divisi Akses: {currentRole}</span>
               
               <nav className="space-y-1">
-                {/* Analytics available to Super Admin, Admin, Marketing */}
-                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                {/* Analytics available to Admin */}
+                {(currentRole === 'Admin') && (
                   <button 
                     id="admin-tab-analytics"
                     onClick={() => selectTab('analytics')}
@@ -704,8 +687,8 @@ export default function AdminDashboard({
                   </button>
                 )}
 
-                {/* Mentors available to Super Admin, Admin, Marketing */}
-                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                {/* Mentors available to Admin */}
+                {(currentRole === 'Admin') && (
                   <button 
                     id="admin-tab-mentors"
                     onClick={() => selectTab('mentors')}
@@ -716,8 +699,8 @@ export default function AdminDashboard({
                   </button>
                 )}
 
-                {/* Benefits available to Super Admin, Admin, Marketing */}
-                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                {/* Benefits available to Admin */}
+                {(currentRole === 'Admin') && (
                   <button 
                     id="admin-tab-benefits"
                     onClick={() => selectTab('benefits')}
@@ -728,8 +711,8 @@ export default function AdminDashboard({
                   </button>
                 )}
 
-                {/* Facilities available to Super Admin, Admin, Marketing */}
-                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                {/* Facilities available to Admin */}
+                {(currentRole === 'Admin') && (
                   <button 
                     id="admin-tab-facilities"
                     onClick={() => selectTab('facilities')}
@@ -740,8 +723,8 @@ export default function AdminDashboard({
                   </button>
                 )}
 
-                {/* Reviews/Testimonials available to Super Admin, Admin, Marketing */}
-                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                {/* Reviews/Testimonials available to Admin */}
+                {(currentRole === 'Admin') && (
                   <button 
                     id="admin-tab-reviews"
                     onClick={() => selectTab('reviews')}
@@ -752,8 +735,8 @@ export default function AdminDashboard({
                   </button>
                 )}
 
-                {/* CMS available to Super Admin, Admin, Marketing */}
-                {(currentRole === 'Super Admin' || currentRole === 'Admin' || currentRole === 'Marketing') && (
+                {/* CMS available to Admin */}
+                {(currentRole === 'Admin') && (
                   <button 
                     id="admin-tab-cms"
                     onClick={() => selectTab('cms')}
@@ -787,7 +770,7 @@ export default function AdminDashboard({
               </div>
 
               {/* Analytics KPI Matrix */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 
                 <div className="bg-white p-6 rounded-2xl border border-gray-150 shadow-xs flex items-center gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
@@ -819,74 +802,6 @@ export default function AdminDashboard({
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-gray-150 shadow-xs flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
-                    <DollarSign className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">TOTAL REVENUE (LUNAS)</span>
-                    <strong className="text-xl sm:text-2xl font-black text-blue-600 block mt-0.5">{formatPrice(totalRevenue)}</strong>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* SVG Trend Chart */}
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs">
-                <div className="flex justify-between items-center mb-6">
-                  <div>
-                    <h4 className="font-extrabold text-gray-900 text-base">Grafik Pendaftaran & Keuangan Bulanan</h4>
-                    <p className="text-[10px] text-gray-500">Representasi perkembangan tren registrasi kelas karantina 2026</p>
-                  </div>
-                  <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                    <TrendingUp className="w-3.5 h-3.5" /> Tren Meningkat
-                  </span>
-                </div>
-
-                {/* Styled Responsive SVG Chart */}
-                <div className="w-full h-64 bg-gray-50 rounded-2xl border border-gray-100 p-4 flex items-end justify-between relative overflow-hidden">
-                  
-                  {/* Grid Lines */}
-                  <div className="absolute inset-0 flex flex-col justify-between py-6 pointer-events-none opacity-10">
-                    <div className="border-b border-gray-900 w-full"></div>
-                    <div className="border-b border-gray-900 w-full"></div>
-                    <div className="border-b border-gray-900 w-full"></div>
-                    <div className="border-b border-gray-900 w-full"></div>
-                  </div>
-
-                  {/* Chart Bar 1 */}
-                  <div className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
-                    <div className="w-10 sm:w-16 bg-gray-300 group-hover:bg-primary h-24 rounded-t-lg transition-all relative">
-                      <span className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">5 Pendaftar</span>
-                    </div>
-                    <span className="text-[10px] text-gray-500 font-bold">Maret</span>
-                  </div>
-
-                  {/* Chart Bar 2 */}
-                  <div className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
-                    <div className="w-10 sm:w-16 bg-gray-300 group-hover:bg-primary h-36 rounded-t-lg transition-all relative">
-                      <span className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">8 Pendaftar</span>
-                    </div>
-                    <span className="text-[10px] text-gray-500 font-bold">April</span>
-                  </div>
-
-                  {/* Chart Bar 3 */}
-                  <div className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
-                    <div className="w-10 sm:w-16 bg-gray-300 group-hover:bg-primary h-48 rounded-t-lg transition-all relative">
-                      <span className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">12 Pendaftar</span>
-                    </div>
-                    <span className="text-[10px] text-gray-500 font-bold">Mei</span>
-                  </div>
-
-                  {/* Chart Bar 4 */}
-                  <div className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
-                    <div className="w-10 sm:w-16 bg-primary h-56 rounded-t-lg transition-all relative">
-                      <span className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-[9px] px-1.5 py-0.5 rounded opacity-100 font-bold">{totalRegistrants} Pendaftar</span>
-                    </div>
-                    <span className="text-[10px] text-primary font-black">Juni (Karantina)</span>
-                  </div>
-
-                </div>
               </div>
 
             </div>

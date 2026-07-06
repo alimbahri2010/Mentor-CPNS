@@ -21,13 +21,13 @@ import { AppUser, Mentor, LearningMaterial, Tryout, TryoutResult, Announcement, 
 const DEFAULT_USERS: AppUser[] = [
   {
     id: 'u_admin',
-    name: 'Super Admin Mentor CPNS',
-    email: 'superadmin@mentorcpns.com',
+    name: 'Admin Utama Mentor CPNS',
+    email: 'admin@mentorcpns.com',
     password: 'admin123',
     whatsapp: '628123456789',
     origin: 'Makassar',
     targetInstansi: 'Pusat Kendali',
-    role: 'Super Admin',
+    role: 'Admin',
     status: 'Approved',
     joinedAt: '2026-06-25'
   },
@@ -293,7 +293,7 @@ export default function App() {
           whatsapp: '-',
           origin: 'Pusat',
           targetInstansi: 'Admin Utama',
-          role: session.user.email === 'superadmin@mentorcpns.com' ? 'Super Admin' : 'Admin',
+          role: 'Admin',
           status: 'Approved',
           joinedAt: session.user.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         };
@@ -318,7 +318,7 @@ export default function App() {
           whatsapp: '-',
           origin: 'Pusat',
           targetInstansi: 'Admin Utama',
-          role: session.user.email === 'superadmin@mentorcpns.com' ? 'Super Admin' : 'Admin',
+          role: 'Admin',
           status: 'Approved',
           joinedAt: session.user.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         };

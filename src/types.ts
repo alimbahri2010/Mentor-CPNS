@@ -75,7 +75,7 @@ export interface AppUser {
   whatsapp: string;
   origin: string;
   targetInstansi: string;
-  role: 'Super Admin' | 'Admin' | 'Marketing' | 'Finance' | 'Mentor' | 'Peserta';
+  role: 'Admin' | 'Finance' | 'Mentor' | 'Peserta';
   status: 'Pending' | 'Waiting Payment' | 'Approved' | 'Rejected';
   paymentProof?: string;
   paymentDate?: string;

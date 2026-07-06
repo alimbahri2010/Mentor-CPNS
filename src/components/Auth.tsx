@@ -48,7 +48,7 @@ export default function Auth({ onLogin, onRegister, users, onNavigate, initialMo
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [regOrigin, setRegOrigin] = useState('');
   const [regTarget, setRegTarget] = useState('Admin Utama');
-  const [regRole, setRegRole] = useState<'Admin' | 'Super Admin' | 'Marketing'>('Admin');
+  const [regRole, setRegRole] = useState<'Admin'>('Admin');
   const [adminCode, setAdminCode] = useState('');
   const [regAgree, setRegAgree] = useState(true);
   const [regError, setRegError] = useState('');
@@ -376,7 +376,7 @@ export default function Auth({ onLogin, onRegister, users, onNavigate, initialMo
               <button 
                 id="google-login-btn"
                 type="button"
-                onClick={() => handleQuickLogin('superadmin@mentorcpns.com', 'admin123')}
+                onClick={() => handleQuickLogin('admin@mentorcpns.com', 'admin123')}
                 className="w-full border border-gray-200 hover:bg-gray-550 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Chrome className="w-4 h-4 text-red-500" />
