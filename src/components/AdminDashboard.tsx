@@ -87,6 +87,7 @@ export default function AdminDashboard({
   const [newBenefitTitle, setNewBenefitTitle] = useState('');
   const [newBenefitDesc, setNewBenefitDesc] = useState('');
   const [newBenefitIcon, setNewBenefitIcon] = useState('Clock');
+  const [editingBenefitId, setEditingBenefitId] = useState<string | null>(null);
 
   // CRUD Facility states
   const [newFacilityTitle, setNewFacilityTitle] = useState('');
@@ -110,6 +111,7 @@ export default function AdminDashboard({
   const [newMentorRole, setNewMentorRole] = useState('');
   const [newMentorSpec, setNewMentorSpec] = useState('');
   const [newMentorImage, setNewMentorImage] = useState('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80');
+  const [editingMentorId, setEditingMentorId] = useState<string | null>(null);
 
   // CRUD Material states
   const [newMatTitle, setNewMatTitle] = useState('');
@@ -118,11 +120,13 @@ export default function AdminDashboard({
   const [newMatUrl, setNewMatUrl] = useState('');
   const [newMatDuration, setNewMatDuration] = useState('');
   const [newMatDesc, setNewMatDesc] = useState('');
+  const [editingMaterialId, setEditingMaterialId] = useState<string | null>(null);
 
   // CRUD Tryout states
   const [newToTitle, setNewToTitle] = useState('');
   const [newToCategory, setNewToCategory] = useState<'TWK' | 'TIU' | 'TKP'>('TWK');
   const [newToDuration, setNewToDuration] = useState(15);
+  const [editingTryoutId, setEditingTryoutId] = useState<string | null>(null);
 
   // Dynamic CMS Editing states
   const [cmsHeroTitle, setCmsHeroTitle] = useState(cms.heroTitle);
@@ -182,20 +186,53 @@ export default function AdminDashboard({
     }
   };
 
-  // Add Mentor
+  // Add / Edit Mentor
   const handleAddMentor = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMentorName || !newMentorRole || !newMentorSpec) return;
 
-    const newMentor: Mentor = {
-      id: 'm_' + Date.now(),
-      name: newMentorName,
-      role: newMentorRole,
-      spec: newMentorSpec,
-      image: newMentorImage
-    };
+    if (editingMentorId) {
+      const updated = mentors.map(m => {
+        if (m.id === editingMentorId) {
+          return {
+            ...m,
+            name: newMentorName,
+            role: newMentorRole,
+            spec: newMentorSpec,
+            image: newMentorImage
+          };
+        }
+        return m;
+      });
+      onUpdateMentors(updated);
+      setEditingMentorId(null);
+    } else {
+      const newMentor: Mentor = {
+        id: 'm_' + Date.now(),
+        name: newMentorName,
+        role: newMentorRole,
+        spec: newMentorSpec,
+        image: newMentorImage
+      };
+      onUpdateMentors([newMentor, ...mentors]);
+    }
 
-    onUpdateMentors([newMentor, ...mentors]);
+    setNewMentorName('');
+    setNewMentorRole('');
+    setNewMentorSpec('');
+    setNewMentorImage('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80');
+  };
+
+  const handleStartEditMentor = (mentor: Mentor) => {
+    setEditingMentorId(mentor.id);
+    setNewMentorName(mentor.name);
+    setNewMentorRole(mentor.role);
+    setNewMentorSpec(mentor.spec);
+    setNewMentorImage(mentor.image);
+  };
+
+  const handleCancelEditMentor = () => {
+    setEditingMentorId(null);
     setNewMentorName('');
     setNewMentorRole('');
     setNewMentorSpec('');
@@ -206,25 +243,65 @@ export default function AdminDashboard({
   const handleDeleteMentor = (id: string) => {
     if (confirm('Hapus mentor ini?')) {
       onUpdateMentors(mentors.filter(m => m.id !== id));
+      if (editingMentorId === id) {
+        handleCancelEditMentor();
+      }
     }
   };
 
-  // Add Learning Material
+  // Add / Edit Learning Material
   const handleAddMaterial = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMatTitle || !newMatUrl) return;
 
-    const newMat: LearningMaterial = {
-      id: 'mat_' + Date.now(),
-      title: newMatTitle,
-      category: newMatCategory,
-      type: newMatType,
-      url: newMatUrl,
-      duration: newMatDuration || undefined,
-      description: newMatDesc || undefined
-    };
+    if (editingMaterialId) {
+      const updated = materials.map(m => {
+        if (m.id === editingMaterialId) {
+          return {
+            ...m,
+            title: newMatTitle,
+            category: newMatCategory,
+            type: newMatType,
+            url: newMatUrl,
+            duration: newMatDuration || undefined,
+            description: newMatDesc || undefined
+          };
+        }
+        return m;
+      });
+      onUpdateMaterials(updated);
+      setEditingMaterialId(null);
+    } else {
+      const newMat: LearningMaterial = {
+        id: 'mat_' + Date.now(),
+        title: newMatTitle,
+        category: newMatCategory,
+        type: newMatType,
+        url: newMatUrl,
+        duration: newMatDuration || undefined,
+        description: newMatDesc || undefined
+      };
+      onUpdateMaterials([newMat, ...materials]);
+    }
 
-    onUpdateMaterials([newMat, ...materials]);
+    setNewMatTitle('');
+    setNewMatUrl('');
+    setNewMatDuration('');
+    setNewMatDesc('');
+  };
+
+  const handleStartEditMaterial = (mat: LearningMaterial) => {
+    setEditingMaterialId(mat.id);
+    setNewMatTitle(mat.title);
+    setNewMatCategory(mat.category);
+    setNewMatType(mat.type);
+    setNewMatUrl(mat.url);
+    setNewMatDuration(mat.duration || '');
+    setNewMatDesc(mat.description || '');
+  };
+
+  const handleCancelEditMaterial = () => {
+    setEditingMaterialId(null);
     setNewMatTitle('');
     setNewMatUrl('');
     setNewMatDuration('');
@@ -235,39 +312,75 @@ export default function AdminDashboard({
   const handleDeleteMaterial = (id: string) => {
     if (confirm('Hapus bahan belajar ini?')) {
       onUpdateMaterials(materials.filter(m => m.id !== id));
+      if (editingMaterialId === id) {
+        handleCancelEditMaterial();
+      }
     }
   };
 
-  // Add Tryout Exam
+  // Add / Edit Tryout Exam
   const handleAddTryout = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newToTitle) return;
 
-    // We'll create a Tryout with empty questions, ready to be edited or filled
-    const newTo: Tryout = {
-      id: 'to_' + Date.now(),
-      title: newToTitle,
-      category: newToCategory,
-      duration: newToDuration,
-      questions: [
-        {
-          id: 'q_' + Date.now() + '_1',
-          question: 'Pertanyaan pertama dari tryout baru. Isi soal di sini.',
-          options: ['Pilihan A', 'Pilihan B', 'Pilihan C', 'Pilihan D', 'Pilihan E'],
-          correctAnswer: 0,
-          explanation: 'Pembahasan materi dasar.'
+    if (editingTryoutId) {
+      const updated = tryouts.map(t => {
+        if (t.id === editingTryoutId) {
+          return {
+            ...t,
+            title: newToTitle,
+            category: newToCategory,
+            duration: newToDuration
+          };
         }
-      ]
-    };
+        return t;
+      });
+      onUpdateTryouts(updated);
+      setEditingTryoutId(null);
+    } else {
+      // We'll create a Tryout with empty questions, ready to be edited or filled
+      const newTo: Tryout = {
+        id: 'to_' + Date.now(),
+        title: newToTitle,
+        category: newToCategory,
+        duration: newToDuration,
+        questions: [
+          {
+            id: 'q_' + Date.now() + '_1',
+            question: 'Pertanyaan pertama dari tryout baru. Isi soal di sini.',
+            options: ['Pilihan A', 'Pilihan B', 'Pilihan C', 'Pilihan D', 'Pilihan E'],
+            correctAnswer: 0,
+            explanation: 'Pembahasan materi dasar.'
+          }
+        ]
+      };
+      onUpdateTryouts([newTo, ...tryouts]);
+    }
 
-    onUpdateTryouts([newTo, ...tryouts]);
     setNewToTitle('');
+    setNewToDuration(15);
+  };
+
+  const handleStartEditTryout = (to: Tryout) => {
+    setEditingTryoutId(to.id);
+    setNewToTitle(to.title);
+    setNewToCategory(to.category);
+    setNewToDuration(to.duration);
+  };
+
+  const handleCancelEditTryout = () => {
+    setEditingTryoutId(null);
+    setNewToTitle('');
+    setNewToDuration(15);
   };
 
   // Delete Tryout Exam
   const handleDeleteTryout = (id: string) => {
     if (confirm('Hapus tryout ini beserta seluruh soalnya?')) {
       onUpdateTryouts(tryouts.filter(t => t.id !== id));
+      if (editingTryoutId === id) {
+        handleCancelEditTryout();
+      }
     }
   };
 
@@ -291,27 +404,61 @@ export default function AdminDashboard({
     setTimeout(() => setCmsSuccess(''), 3000);
   };
 
-  // Add Benefit
+  // Add / Edit Benefit
   const handleAddBenefit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBenefitTitle || !newBenefitDesc) return;
 
-    const newBenefit: Benefit = {
-      id: 'b_' + Date.now(),
-      title: newBenefitTitle,
-      description: newBenefitDesc,
-      iconName: newBenefitIcon
-    };
+    if (editingBenefitId) {
+      const updated = benefits.map(b => {
+        if (b.id === editingBenefitId) {
+          return {
+            ...b,
+            title: newBenefitTitle,
+            description: newBenefitDesc,
+            iconName: newBenefitIcon
+          };
+        }
+        return b;
+      });
+      onUpdateBenefits(updated);
+      setEditingBenefitId(null);
+    } else {
+      const newBenefit: Benefit = {
+        id: 'b_' + Date.now(),
+        title: newBenefitTitle,
+        description: newBenefitDesc,
+        iconName: newBenefitIcon
+      };
+      onUpdateBenefits([newBenefit, ...benefits]);
+    }
 
-    onUpdateBenefits([newBenefit, ...benefits]);
     setNewBenefitTitle('');
     setNewBenefitDesc('');
+    setNewBenefitIcon('Clock');
+  };
+
+  const handleStartEditBenefit = (b: Benefit) => {
+    setEditingBenefitId(b.id);
+    setNewBenefitTitle(b.title);
+    setNewBenefitDesc(b.description);
+    setNewBenefitIcon(b.iconName);
+  };
+
+  const handleCancelEditBenefit = () => {
+    setEditingBenefitId(null);
+    setNewBenefitTitle('');
+    setNewBenefitDesc('');
+    setNewBenefitIcon('Clock');
   };
 
   // Delete Benefit
   const handleDeleteBenefit = (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus benefit ini?')) {
       onUpdateBenefits(benefits.filter(b => b.id !== id));
+      if (editingBenefitId === id) {
+        handleCancelEditBenefit();
+      }
     }
   };
 
@@ -879,11 +1026,20 @@ export default function AdminDashboard({
 
               <div className="grid lg:grid-cols-12 gap-8">
                 
-                {/* Add form */}
+                {/* Add/Edit form */}
                 <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
                   <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
-                    <Plus className="w-5 h-5 text-primary" />
-                    <span>Tambahkan Mentor Baru</span>
+                    {editingMentorId ? (
+                      <>
+                        <Edit3 className="w-5 h-5 text-amber-500" />
+                        <span>Ubah Data Mentor</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5 text-primary" />
+                        <span>Tambahkan Mentor Baru</span>
+                      </>
+                    )}
                   </h4>
 
                   <form onSubmit={handleAddMentor} className="space-y-4">
@@ -981,13 +1137,24 @@ export default function AdminDashboard({
                       </div>
                     </div>
 
-                    <button 
-                      id="new-mentor-submit"
-                      type="submit"
-                      className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer"
-                    >
-                      Daftarkan Pengajar
-                    </button>
+                    <div className="flex gap-3">
+                      {editingMentorId && (
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditMentor}
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl transition-all text-xs cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                      )}
+                      <button 
+                        id="new-mentor-submit"
+                        type="submit"
+                        className={`font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer ${editingMentorId ? 'flex-1 bg-amber-500 hover:bg-amber-600 text-white' : 'w-full bg-primary hover:bg-secondary text-white'}`}
+                      >
+                        {editingMentorId ? 'Simpan Perubahan' : 'Daftarkan Pengajar'}
+                      </button>
+                    </div>
                   </form>
                 </div>
 
@@ -997,22 +1164,35 @@ export default function AdminDashboard({
                   
                   <div className="grid sm:grid-cols-2 gap-4">
                     {mentors.map((m) => (
-                      <div key={m.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex gap-3 items-center relative">
-                        <img src={m.image} alt={m.name} className="w-14 h-14 rounded-full object-cover" />
-                        <div className="space-y-0.5">
-                          <strong className="text-gray-900 block text-xs font-bold">{m.name}</strong>
-                          <span className="text-[10px] text-gray-500 block">{m.role}</span>
-                          <span className="text-[10px] text-primary font-bold block">{m.spec}</span>
+                      <div key={m.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-center relative gap-3">
+                        <div className="flex gap-3 items-center min-w-0">
+                          <img src={m.image} alt={m.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
+                          <div className="space-y-0.5 min-w-0">
+                            <strong className="text-gray-900 block text-xs font-bold truncate">{m.name}</strong>
+                            <span className="text-[10px] text-gray-500 block truncate">{m.role}</span>
+                            <span className="text-[10px] text-primary font-bold block truncate">{m.spec}</span>
+                          </div>
                         </div>
 
-                        {/* Delete action */}
-                        <button 
-                          id={`delete-mentor-btn-${m.id}`}
-                          onClick={() => handleDeleteMentor(m.id)}
-                          className="absolute top-3 right-3 text-gray-400 hover:text-red-600 p-1 rounded-lg"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {/* Edit & Delete actions */}
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            id={`edit-mentor-btn-${m.id}`}
+                            onClick={() => handleStartEditMentor(m)}
+                            className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 transition-colors cursor-pointer border border-amber-200/30"
+                            title="Ubah data"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            id={`delete-mentor-btn-${m.id}`}
+                            onClick={() => handleDeleteMentor(m.id)}
+                            className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer border border-red-200/30"
+                            title="Hapus mentor"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1032,12 +1212,20 @@ export default function AdminDashboard({
               </div>
 
               <div className="grid lg:grid-cols-12 gap-8">
-                
-                {/* Form to add */}
+                      {/* Form to add */}
                 <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
                   <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
-                    <Plus className="w-5 h-5 text-primary" />
-                    <span>Tambahkan Bahan Belajar</span>
+                    {editingMaterialId ? (
+                      <>
+                        <Edit3 className="w-5 h-5 text-amber-500" />
+                        <span>Ubah Bahan Belajar</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5 text-primary" />
+                        <span>Tambahkan Bahan Belajar</span>
+                      </>
+                    )}
                   </h4>
 
                   <form onSubmit={handleAddMaterial} className="space-y-4">
@@ -1121,13 +1309,24 @@ export default function AdminDashboard({
                       ></textarea>
                     </div>
 
-                    <button 
-                      id="new-mat-submit"
-                      type="submit"
-                      className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer"
-                    >
-                      Unggah Bahan Belajar
-                    </button>
+                    <div className="flex gap-3">
+                      {editingMaterialId && (
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditMaterial}
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl transition-all text-xs cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                      )}
+                      <button 
+                        id="new-mat-submit"
+                        type="submit"
+                        className={`font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer ${editingMaterialId ? 'flex-1 bg-amber-500 hover:bg-amber-600 text-white' : 'w-full bg-primary hover:bg-secondary text-white'}`}
+                      >
+                        {editingMaterialId ? 'Simpan Perubahan' : 'Unggah Bahan Belajar'}
+                      </button>
+                    </div>
                   </form>
                 </div>
 
@@ -1137,23 +1336,34 @@ export default function AdminDashboard({
                   
                   <div className="space-y-3">
                     {materials.map((mat) => (
-                      <div key={mat.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-center text-xs">
-                        <div>
+                      <div key={mat.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-center text-xs gap-3">
+                        <div className="min-w-0">
                           <div className="flex gap-2 items-center">
-                            <span className="text-[9px] font-bold bg-primary/10 text-primary px-2 rounded-md uppercase">{mat.category}</span>
-                            <span className="text-[9px] text-gray-400 font-bold uppercase">{mat.type}</span>
+                            <span className="text-[9px] font-bold bg-primary/10 text-primary px-2 rounded-md uppercase shrink-0">{mat.category}</span>
+                            <span className="text-[9px] text-gray-400 font-bold uppercase shrink-0">{mat.type}</span>
                           </div>
-                          <strong className="text-gray-900 block mt-1.5 font-bold">{mat.title}</strong>
-                          <span className="text-gray-400 text-[10px] block mt-0.5">{mat.duration} - {mat.url.substring(0, 45)}...</span>
+                          <strong className="text-gray-900 block mt-1.5 font-bold truncate">{mat.title}</strong>
+                          <span className="text-gray-400 text-[10px] block mt-0.5 truncate">{mat.duration} - {mat.url.substring(0, 45)}...</span>
                         </div>
 
-                        <button 
-                          id={`delete-mat-btn-${mat.id}`}
-                          onClick={() => handleDeleteMaterial(mat.id)}
-                          className="text-gray-400 hover:text-red-600 p-2 rounded-lg"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            id={`edit-mat-btn-${mat.id}`}
+                            onClick={() => handleStartEditMaterial(mat)}
+                            className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 transition-colors cursor-pointer border border-amber-200/30"
+                            title="Ubah data"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            id={`delete-mat-btn-${mat.id}`}
+                            onClick={() => handleDeleteMaterial(mat.id)}
+                            className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer border border-red-200/30"
+                            title="Hapus bahan belajar"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1177,8 +1387,17 @@ export default function AdminDashboard({
                 {/* Form to add */}
                 <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
                   <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
-                    <Plus className="w-5 h-5 text-primary" />
-                    <span>Tambahkan Tryout Baru</span>
+                    {editingTryoutId ? (
+                      <>
+                        <Edit3 className="w-5 h-5 text-amber-500" />
+                        <span>Ubah Paket Tryout</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5 text-primary" />
+                        <span>Tambahkan Tryout Baru</span>
+                      </>
+                    )}
                   </h4>
 
                   <form onSubmit={handleAddTryout} className="space-y-4">
@@ -1223,13 +1442,24 @@ export default function AdminDashboard({
                       </div>
                     </div>
 
-                    <button 
-                      id="new-to-submit"
-                      type="submit"
-                      className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer"
-                    >
-                      Buat Paket Tryout
-                    </button>
+                    <div className="flex gap-3">
+                      {editingTryoutId && (
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditTryout}
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl transition-all text-xs cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                      )}
+                      <button 
+                        id="new-to-submit"
+                        type="submit"
+                        className={`font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer ${editingTryoutId ? 'flex-1 bg-amber-500 hover:bg-amber-600 text-white' : 'w-full bg-primary hover:bg-secondary text-white'}`}
+                      >
+                        {editingTryoutId ? 'Simpan Perubahan' : 'Buat Paket Tryout'}
+                      </button>
+                    </div>
                   </form>
                 </div>
 
@@ -1239,20 +1469,31 @@ export default function AdminDashboard({
                   
                   <div className="space-y-3">
                     {tryouts.map((to) => (
-                      <div key={to.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-center text-xs">
-                        <div>
-                          <span className="text-[9px] font-bold bg-primary/10 text-primary px-2 rounded-md uppercase">{to.category}</span>
-                          <strong className="text-gray-900 block mt-1 font-bold">{to.title}</strong>
-                          <span className="text-gray-400 text-[10px] block mt-0.5">Durasi: {to.duration} Menit - {to.questions.length} Soal</span>
+                      <div key={to.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-center text-xs gap-3">
+                        <div className="min-w-0">
+                          <span className="text-[9px] font-bold bg-primary/10 text-primary px-2 rounded-md uppercase shrink-0">{to.category}</span>
+                          <strong className="text-gray-900 block mt-1 font-bold truncate">{to.title}</strong>
+                          <span className="text-gray-400 text-[10px] block mt-0.5 truncate">Durasi: {to.duration} Menit - {to.questions.length} Soal</span>
                         </div>
 
-                        <button 
-                          id={`delete-tryout-btn-${to.id}`}
-                          onClick={() => handleDeleteTryout(to.id)}
-                          className="text-gray-400 hover:text-red-600 p-2 rounded-lg"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            id={`edit-tryout-btn-${to.id}`}
+                            onClick={() => handleStartEditTryout(to)}
+                            className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 transition-colors cursor-pointer border border-amber-200/30"
+                            title="Ubah data"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            id={`delete-tryout-btn-${to.id}`}
+                            onClick={() => handleDeleteTryout(to.id)}
+                            className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer border border-red-200/30"
+                            title="Hapus tryout"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1401,8 +1642,17 @@ export default function AdminDashboard({
                 {/* Form to add */}
                 <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xs h-max">
                   <h4 className="font-extrabold text-gray-900 text-base mb-4 flex items-center gap-1.5">
-                    <Plus className="w-5 h-5 text-primary" />
-                    <span>Tambahkan Benefit Baru</span>
+                    {editingBenefitId ? (
+                      <>
+                        <Edit3 className="w-5 h-5 text-amber-500" />
+                        <span>Ubah Benefit</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5 text-primary" />
+                        <span>Tambahkan Benefit Baru</span>
+                      </>
+                    )}
                   </h4>
 
                   <form onSubmit={handleAddBenefit} className="space-y-4">
@@ -1451,13 +1701,24 @@ export default function AdminDashboard({
                       ></textarea>
                     </div>
 
-                    <button 
-                      id="new-benefit-submit"
-                      type="submit"
-                      className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer"
-                    >
-                      Tambahkan Benefit
-                    </button>
+                    <div className="flex gap-3">
+                      {editingBenefitId && (
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditBenefit}
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl transition-all text-xs cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                      )}
+                      <button 
+                        id="new-benefit-submit"
+                        type="submit"
+                        className={`font-bold py-3.5 rounded-xl transition-all shadow-md text-xs cursor-pointer ${editingBenefitId ? 'flex-1 bg-amber-500 hover:bg-amber-600 text-white' : 'w-full bg-primary hover:bg-secondary text-white'}`}
+                      >
+                        {editingBenefitId ? 'Simpan Perubahan' : 'Tambahkan Benefit'}
+                      </button>
+                    </div>
                   </form>
                 </div>
 
@@ -1468,23 +1729,34 @@ export default function AdminDashboard({
                   <div className="space-y-3">
                     {benefits.map((b) => (
                       <div key={b.id} className="bg-white p-5 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-start gap-4 text-xs">
-                        <div className="flex gap-3 items-start">
+                        <div className="flex gap-3 items-start min-w-0">
                           <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0 font-bold">
                             <Award className="w-4 h-4" />
                           </div>
-                          <div>
-                            <strong className="text-gray-900 block text-sm font-bold">{b.title}</strong>
-                            <p className="text-gray-500 mt-1 leading-relaxed text-xs">{b.description}</p>
+                          <div className="min-w-0">
+                            <strong className="text-gray-900 block text-sm font-bold truncate">{b.title}</strong>
+                            <p className="text-gray-500 mt-1 leading-relaxed text-xs break-words">{b.description}</p>
                           </div>
                         </div>
 
-                        <button 
-                          id={`delete-benefit-btn-${b.id}`}
-                          onClick={() => handleDeleteBenefit(b.id)}
-                          className="text-gray-400 hover:text-red-600 p-2 rounded-lg shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            id={`edit-benefit-btn-${b.id}`}
+                            onClick={() => handleStartEditBenefit(b)}
+                            className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 transition-colors cursor-pointer border border-amber-200/30"
+                            title="Ubah data"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            id={`delete-benefit-btn-${b.id}`}
+                            onClick={() => handleDeleteBenefit(b.id)}
+                            className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer border border-red-200/30"
+                            title="Hapus benefit"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
