@@ -50,6 +50,7 @@ interface AdminDashboardProps {
   onUpdateMaterials: (updatedMaterials: LearningMaterial[]) => void;
   onUpdateTryouts: (updatedTryouts: Tryout[]) => void;
   onLogout: () => void;
+  dbErrors?: { [table: string]: string };
 }
 
 export default function AdminDashboard({
@@ -71,7 +72,8 @@ export default function AdminDashboard({
   onUpdateMentors,
   onUpdateMaterials,
   onUpdateTryouts,
-  onLogout
+  onLogout,
+  dbErrors = {}
 }: AdminDashboardProps) {
 
   // Current role for dashboard view filtering
@@ -758,6 +760,72 @@ export default function AdminDashboard({
 
         {/* Admin Dashboard Active Panel */}
         <main className="flex-1 p-6 sm:p-8 lg:p-10 overflow-y-auto w-full max-w-7xl mx-auto">
+          
+          {Object.keys(dbErrors).length > 0 && (
+            <div id="supabase-error-banner" className="bg-amber-50 border border-amber-200 rounded-3xl p-5 sm:p-6 mb-8 space-y-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <HelpCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-extrabold text-gray-900 text-sm">⚠️ Terdeteksi Masalah Sinkronisasi Database Supabase</h3>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Hanya data <strong>testimonials</strong> yang tersimpan di Supabase. Tabel berikut belum siap menerima sinkronisasi data dari aplikasi karena skema kolom belum cocok atau terbentur kebijakan akses RLS (Row Level Security): 
+                    <span className="inline-block bg-white border border-amber-200 rounded px-1.5 py-0.5 ml-1 font-mono text-[10px] text-amber-800 font-bold">
+                      {Object.keys(dbErrors).join(', ')}
+                    </span>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-gray-900 rounded-2xl p-4 text-xs text-gray-300 font-mono space-y-2 overflow-x-auto border border-gray-800">
+                <span className="text-green-400 block font-bold"># Solusi Cepat: Salin & Jalankan SQL ini di menu SQL Editor Supabase Anda:</span>
+                <pre className="text-[11px] leading-relaxed max-h-48 overflow-y-auto select-all cursor-pointer bg-black/30 p-3 rounded-xl border border-gray-800 text-gray-100 font-mono">
+{`-- 1. Matikan RLS agar client-side bisa melakukan insert/upsert/delete langsung
+ALTER TABLE IF EXISTS mentors DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS benefits DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS facilities DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS testimonials DISABLE ROW LEVEL SECURITY;
+
+-- 2. Pastikan skema kolom tabel sinkron sempurna dengan aplikasi
+CREATE TABLE IF NOT EXISTS mentors (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT,
+  spec TEXT,
+  image TEXT
+);
+
+CREATE TABLE IF NOT EXISTS benefits (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  icon_name TEXT
+);
+
+CREATE TABLE IF NOT EXISTS facilities (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  image TEXT,
+  badge TEXT,
+  rating_text TEXT
+);
+
+CREATE TABLE IF NOT EXISTS testimonials (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT,
+  text TEXT,
+  rating NUMERIC,
+  image TEXT,
+  instansi TEXT
+);`}
+                </pre>
+                <div className="text-[10px] text-gray-400 mt-2">
+                  💡 <strong>Cara perbaikan:</strong> Masuk ke panel/console <strong>Supabase</strong> Anda &gt; pilih menu <strong>SQL Editor</strong> di sebelah kiri &gt; klik <strong>New Query</strong> &gt; tempel (paste) kode SQL di atas &gt; klik tombol <strong>Run</strong> di kanan bawah!
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* TAB 1: ANALYTICS OVERVIEW */}
           {activeTab === 'analytics' && (

@@ -235,6 +235,8 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_FACILITIES;
   });
 
+  const [dbErrors, setDbErrors] = useState<{ [table: string]: string }>({});
+
   // Keep state synchronized in local storage
   useEffect(() => {
     localStorage.setItem('mentorcpns_users', JSON.stringify(users));
@@ -288,8 +290,17 @@ export default function App() {
         if (mentorsData) {
           setMentors(mentorsData);
         }
+        setDbErrors(prev => {
+          const copy = { ...prev };
+          delete copy.mentors;
+          return copy;
+        });
       } else {
         console.warn('Could not load mentors from Supabase, using local state:', mentorsError);
+        setDbErrors(prev => ({
+          ...prev,
+          mentors: `${mentorsError.message} (Code: ${mentorsError.code})`
+        }));
       }
 
       // 2. Fetch benefits
@@ -303,8 +314,17 @@ export default function App() {
             iconName: b.iconName || b.icon_name || 'Clock'
           })));
         }
+        setDbErrors(prev => {
+          const copy = { ...prev };
+          delete copy.benefits;
+          return copy;
+        });
       } else {
         console.warn('Could not load benefits from Supabase, using local state:', benefitsError);
+        setDbErrors(prev => ({
+          ...prev,
+          benefits: `${benefitsError.message} (Code: ${benefitsError.code})`
+        }));
       }
 
       // 3. Fetch facilities
@@ -320,8 +340,17 @@ export default function App() {
             ratingText: f.ratingText || f.rating_text
           })));
         }
+        setDbErrors(prev => {
+          const copy = { ...prev };
+          delete copy.facilities;
+          return copy;
+        });
       } else {
         console.warn('Could not load facilities from Supabase, using local state:', facilitiesError);
+        setDbErrors(prev => ({
+          ...prev,
+          facilities: `${facilitiesError.message} (Code: ${facilitiesError.code})`
+        }));
       }
 
       // 4. Fetch testimonials
@@ -338,8 +367,17 @@ export default function App() {
             instansi: t.instansi
           })));
         }
+        setDbErrors(prev => {
+          const copy = { ...prev };
+          delete copy.testimonials;
+          return copy;
+        });
       } else {
         console.warn('Could not load testimonials from Supabase, using local state:', testimonialsError);
+        setDbErrors(prev => ({
+          ...prev,
+          testimonials: `${testimonialsError.message} (Code: ${testimonialsError.code})`
+        }));
       }
     };
 
@@ -458,6 +496,54 @@ export default function App() {
     setUsers(updatedUsers);
   };
 
+  const resilientUpsert = async (tableName: string, payload: any[]) => {
+    let cleanPayload = [...payload];
+    let { error } = await supabase.from(tableName).upsert(cleanPayload);
+    
+    if (error) {
+      console.warn(`Initial upsert to ${tableName} failed. Starting self-healing:`, error);
+      
+      let attempt = 0;
+      let currentError: any = error;
+      
+      // If error is 42703 (undefined column), extract column name and strip it!
+      while (currentError && currentError.code === '42703' && attempt < 6) {
+        attempt++;
+        const match = currentError.message.match(/column "([^"]+)"/);
+        if (match && match[1]) {
+          const missingColumn = match[1];
+          console.warn(`[Self-Healing] Column "${missingColumn}" does not exist in ${tableName} table. Stripping it and retrying...`);
+          cleanPayload = cleanPayload.map(rec => {
+            const copy = { ...rec };
+            delete copy[missingColumn];
+            return copy;
+          });
+          const { error: retryErr } = await supabase.from(tableName).upsert(cleanPayload);
+          currentError = retryErr;
+        } else {
+          break;
+        }
+      }
+      
+      if (currentError) {
+        console.error(`[Self-Healing Failed] Could not save to ${tableName}:`, currentError);
+        setDbErrors(prev => ({
+          ...prev,
+          [tableName]: `${currentError.message || 'Unknown Error'} (Code: ${currentError.code || 'None'})`
+        }));
+        return false;
+      }
+    }
+    
+    // Success (either initially or after healing)
+    setDbErrors(prev => {
+      const copy = { ...prev };
+      delete copy[tableName];
+      return copy;
+    });
+    return true;
+  };
+
   const handleUpdateMentors = async (updatedMentors: Mentor[]) => {
     setMentors(updatedMentors);
     try {
@@ -473,7 +559,7 @@ export default function App() {
           spec: m.spec,
           image: m.image
         }));
-        await supabase.from('mentors').upsert(toUpsert);
+        await resilientUpsert('mentors', toUpsert);
       }
     } catch (err) {
       console.error('Error syncing mentors to Supabase:', err);
@@ -488,14 +574,14 @@ export default function App() {
         await supabase.from('benefits').delete().in('id', deletedIds);
       }
       if (updatedBenefits.length > 0) {
+        // Try snake_case layout which is default for PG sql script
         const toUpsert = updatedBenefits.map(b => ({
           id: b.id,
           title: b.title,
           description: b.description,
-          icon_name: b.iconName,
-          iconName: b.iconName
+          icon_name: b.iconName
         }));
-        await supabase.from('benefits').upsert(toUpsert);
+        await resilientUpsert('benefits', toUpsert);
       }
     } catch (err) {
       console.error('Error syncing benefits to Supabase:', err);
@@ -510,16 +596,16 @@ export default function App() {
         await supabase.from('facilities').delete().in('id', deletedIds);
       }
       if (updatedFacilities.length > 0) {
+        // Try snake_case layout which is default for PG sql script
         const toUpsert = updatedFacilities.map(f => ({
           id: f.id,
           title: f.title,
           description: f.description,
           image: f.image,
           badge: f.badge,
-          rating_text: f.ratingText,
-          ratingText: f.ratingText
+          rating_text: f.ratingText
         }));
-        await supabase.from('facilities').upsert(toUpsert);
+        await resilientUpsert('facilities', toUpsert);
       }
     } catch (err) {
       console.error('Error syncing facilities to Supabase:', err);
@@ -543,7 +629,7 @@ export default function App() {
           image: t.image,
           instansi: t.instansi
         }));
-        await supabase.from('testimonials').upsert(toUpsert);
+        await resilientUpsert('testimonials', toUpsert);
       }
     } catch (err) {
       console.error('Error syncing testimonials to Supabase:', err);
@@ -644,6 +730,7 @@ export default function App() {
           onUpdateMaterials={handleUpdateMaterials}
           onUpdateTryouts={handleUpdateTryouts}
           onLogout={handleLogout}
+          dbErrors={dbErrors}
         />
       )}
 
