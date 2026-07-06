@@ -280,6 +280,72 @@ export default function App() {
     localStorage.setItem('mentorcpns_facilities', JSON.stringify(facilities));
   }, [facilities]);
 
+  useEffect(() => {
+    const fetchSupabaseData = async () => {
+      // 1. Fetch mentors
+      const { data: mentorsData, error: mentorsError } = await supabase.from('mentors').select('*');
+      if (!mentorsError) {
+        if (mentorsData) {
+          setMentors(mentorsData);
+        }
+      } else {
+        console.warn('Could not load mentors from Supabase, using local state:', mentorsError);
+      }
+
+      // 2. Fetch benefits
+      const { data: benefitsData, error: benefitsError } = await supabase.from('benefits').select('*');
+      if (!benefitsError) {
+        if (benefitsData) {
+          setBenefits(benefitsData.map((b: any) => ({
+            id: b.id,
+            title: b.title,
+            description: b.description,
+            iconName: b.iconName || b.icon_name || 'Clock'
+          })));
+        }
+      } else {
+        console.warn('Could not load benefits from Supabase, using local state:', benefitsError);
+      }
+
+      // 3. Fetch facilities
+      const { data: facilitiesData, error: facilitiesError } = await supabase.from('facilities').select('*');
+      if (!facilitiesError) {
+        if (facilitiesData) {
+          setFacilities(facilitiesData.map((f: any) => ({
+            id: f.id,
+            title: f.title,
+            description: f.description,
+            image: f.image,
+            badge: f.badge,
+            ratingText: f.ratingText || f.rating_text
+          })));
+        }
+      } else {
+        console.warn('Could not load facilities from Supabase, using local state:', facilitiesError);
+      }
+
+      // 4. Fetch testimonials
+      const { data: testimonialsData, error: testimonialsError } = await supabase.from('testimonials').select('*');
+      if (!testimonialsError) {
+        if (testimonialsData) {
+          setTestimonials(testimonialsData.map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            role: t.role,
+            text: t.text,
+            rating: Number(t.rating || 5),
+            image: t.image,
+            instansi: t.instansi
+          })));
+        }
+      } else {
+        console.warn('Could not load testimonials from Supabase, using local state:', testimonialsError);
+      }
+    };
+
+    fetchSupabaseData();
+  }, []);
+
   // Load and listen to Supabase session to protect private pages
   useEffect(() => {
     const initAuth = async () => {
@@ -392,8 +458,96 @@ export default function App() {
     setUsers(updatedUsers);
   };
 
-  const handleUpdateMentors = (updatedMentors: Mentor[]) => {
+  const handleUpdateMentors = async (updatedMentors: Mentor[]) => {
     setMentors(updatedMentors);
+    try {
+      const deletedIds = mentors.filter(m => !updatedMentors.some(um => um.id === m.id)).map(m => m.id);
+      if (deletedIds.length > 0) {
+        await supabase.from('mentors').delete().in('id', deletedIds);
+      }
+      if (updatedMentors.length > 0) {
+        const toUpsert = updatedMentors.map(m => ({
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          spec: m.spec,
+          image: m.image
+        }));
+        await supabase.from('mentors').upsert(toUpsert);
+      }
+    } catch (err) {
+      console.error('Error syncing mentors to Supabase:', err);
+    }
+  };
+
+  const handleUpdateBenefits = async (updatedBenefits: Benefit[]) => {
+    setBenefits(updatedBenefits);
+    try {
+      const deletedIds = benefits.filter(b => !updatedBenefits.some(ub => ub.id === b.id)).map(b => b.id);
+      if (deletedIds.length > 0) {
+        await supabase.from('benefits').delete().in('id', deletedIds);
+      }
+      if (updatedBenefits.length > 0) {
+        const toUpsert = updatedBenefits.map(b => ({
+          id: b.id,
+          title: b.title,
+          description: b.description,
+          icon_name: b.iconName,
+          iconName: b.iconName
+        }));
+        await supabase.from('benefits').upsert(toUpsert);
+      }
+    } catch (err) {
+      console.error('Error syncing benefits to Supabase:', err);
+    }
+  };
+
+  const handleUpdateFacilities = async (updatedFacilities: Facility[]) => {
+    setFacilities(updatedFacilities);
+    try {
+      const deletedIds = facilities.filter(f => !updatedFacilities.some(uf => uf.id === f.id)).map(f => f.id);
+      if (deletedIds.length > 0) {
+        await supabase.from('facilities').delete().in('id', deletedIds);
+      }
+      if (updatedFacilities.length > 0) {
+        const toUpsert = updatedFacilities.map(f => ({
+          id: f.id,
+          title: f.title,
+          description: f.description,
+          image: f.image,
+          badge: f.badge,
+          rating_text: f.ratingText,
+          ratingText: f.ratingText
+        }));
+        await supabase.from('facilities').upsert(toUpsert);
+      }
+    } catch (err) {
+      console.error('Error syncing facilities to Supabase:', err);
+    }
+  };
+
+  const handleUpdateTestimonials = async (updatedTestimonials: Testimonial[]) => {
+    setTestimonials(updatedTestimonials);
+    try {
+      const deletedIds = testimonials.filter(t => !updatedTestimonials.some(ut => ut.id === t.id)).map(t => t.id);
+      if (deletedIds.length > 0) {
+        await supabase.from('testimonials').delete().in('id', deletedIds);
+      }
+      if (updatedTestimonials.length > 0) {
+        const toUpsert = updatedTestimonials.map(t => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          text: t.text,
+          rating: t.rating,
+          image: t.image,
+          instansi: t.instansi
+        }));
+        await supabase.from('testimonials').upsert(toUpsert);
+      }
+    } catch (err) {
+      console.error('Error syncing testimonials to Supabase:', err);
+    }
   };
 
   const handleUpdateMaterials = (updatedMaterials: LearningMaterial[]) => {
@@ -480,10 +634,10 @@ export default function App() {
           tryouts={tryouts}
           cms={cms}
           benefits={benefits}
-          onUpdateBenefits={setBenefits}
+          onUpdateBenefits={handleUpdateBenefits}
           facilities={facilities}
-          onUpdateFacilities={setFacilities}
-          onUpdateTestimonials={setTestimonials}
+          onUpdateFacilities={handleUpdateFacilities}
+          onUpdateTestimonials={handleUpdateTestimonials}
           onUpdateCMS={handleUpdateCMS}
           onUpdateUsers={handleUpdateUsers}
           onUpdateMentors={handleUpdateMentors}
