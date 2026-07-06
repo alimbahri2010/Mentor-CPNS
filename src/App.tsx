@@ -96,143 +96,195 @@ export default function App() {
 
   // Core App states synchronizing from localStorage (or falling back to initial mock lists)
   const [users, setUsers] = useState<AppUser[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_users');
-    return saved ? JSON.parse(saved) : DEFAULT_USERS;
+    try {
+      const saved = localStorage.getItem('mentorcpns_users');
+      return saved ? JSON.parse(saved) : DEFAULT_USERS;
+    } catch (e) {
+      console.error('Error parsing users state:', e);
+      return DEFAULT_USERS;
+    }
   });
 
   const [mentors, setMentors] = useState<Mentor[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_mentors');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((item: any) => {
-        if (item.id === 'm1') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782965951292.png'
-          };
-        }
-        if (item.id === 'm2') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782966185611.png'
-          };
-        }
-        if (item.id === 'm3') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782966747706.png'
-          };
-        }
-        if (item.id === 'm4') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782966744893.png'
-          };
-        }
-        if (item.id === 'm5') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782966741727.png'
-          };
-        }
-        if (item.id === 'm6') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782966739196.png'
-          };
-        }
-        if (item.id === 'm7') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782966903383.png'
-          };
-        }
-        if (item.id === 'm8') {
-          return {
-            ...item,
-            image: '/assets/images/regenerated_image_1782966736522.png'
-          };
-        }
-        return item;
-      });
+    try {
+      const saved = localStorage.getItem('mentorcpns_mentors');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.map((item: any) => {
+          if (item.id === 'm1') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782965951292.png'
+            };
+          }
+          if (item.id === 'm2') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782966185611.png'
+            };
+          }
+          if (item.id === 'm3') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782966747706.png'
+            };
+          }
+          if (item.id === 'm4') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782966744893.png'
+            };
+          }
+          if (item.id === 'm5') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782966741727.png'
+            };
+          }
+          if (item.id === 'm6') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782966739196.png'
+            };
+          }
+          if (item.id === 'm7') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782966903383.png'
+            };
+          }
+          if (item.id === 'm8') {
+            return {
+              ...item,
+              image: '/assets/images/regenerated_image_1782966736522.png'
+            };
+          }
+          return item;
+        });
+      }
+    } catch (e) {
+      console.error('Error parsing mentors state:', e);
     }
     return INITIAL_MENTORS;
   });
 
   const [materials, setMaterials] = useState<LearningMaterial[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_materials');
-    return saved ? JSON.parse(saved) : INITIAL_MATERIALS;
+    try {
+      const saved = localStorage.getItem('mentorcpns_materials');
+      return saved ? JSON.parse(saved) : INITIAL_MATERIALS;
+    } catch (e) {
+      console.error('Error parsing materials state:', e);
+      return INITIAL_MATERIALS;
+    }
   });
 
   const [tryouts, setTryouts] = useState<Tryout[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_tryouts');
-    return saved ? JSON.parse(saved) : INITIAL_TRYOUTS;
+    try {
+      const saved = localStorage.getItem('mentorcpns_tryouts');
+      return saved ? JSON.parse(saved) : INITIAL_TRYOUTS;
+    } catch (e) {
+      console.error('Error parsing tryouts state:', e);
+      return INITIAL_TRYOUTS;
+    }
   });
 
   const [tryoutResults, setTryoutResults] = useState<TryoutResult[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_tryout_results');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('mentorcpns_tryout_results');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Error parsing tryoutResults state:', e);
+      return [];
+    }
   });
 
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_announcements');
-    return saved ? JSON.parse(saved) : INITIAL_ANNOUNCEMENTS;
+    try {
+      const saved = localStorage.getItem('mentorcpns_announcements');
+      return saved ? JSON.parse(saved) : INITIAL_ANNOUNCEMENTS;
+    } catch (e) {
+      console.error('Error parsing announcements state:', e);
+      return INITIAL_ANNOUNCEMENTS;
+    }
   });
 
   const [faqs, setFaqs] = useState<FAQItem[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_faqs');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((item: any) => {
-        if (item.id === 'faq4' && item.question.includes('30.000.000')) {
-          return {
-            ...item,
-            question: item.question.replace('30.000.000', '40.000.000')
-          };
-        }
-        if (item.id === 'faq1' && (item.question.includes('SKD') || !item.answer.includes('Agustus'))) {
-          return {
-            ...item,
-            question: 'Kapan program karantina SKB CAT CPNS 2026 dimulai?',
-            answer: 'Program bimbingan karantina intensif akan dimulai pada bulan Agustus 2026, dilaksanakan selama 30 hari penuh secara tatap muka menjelang pelaksanaan ujian resmi SKB CPNS 2026.'
-          };
-        }
-        return item;
-      });
+    try {
+      const saved = localStorage.getItem('mentorcpns_faqs');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.map((item: any) => {
+          if (item.id === 'faq4' && item.question.includes('30.000.000')) {
+            return {
+              ...item,
+              question: item.question.replace('30.000.000', '40.000.000')
+            };
+          }
+          if (item.id === 'faq1' && (item.question.includes('SKD') || !item.answer.includes('Agustus'))) {
+            return {
+              ...item,
+              question: 'Kapan program karantina SKB CAT CPNS 2026 dimulai?',
+              answer: 'Program bimbingan karantina intensif akan dimulai pada bulan Agustus 2026, dilaksanakan selama 30 hari penuh secara tatap muka menjelang pelaksanaan ujian resmi SKB CPNS 2026.'
+            };
+          }
+          return item;
+        });
+      }
+    } catch (e) {
+      console.error('Error parsing faqs state:', e);
     }
     return INITIAL_FAQS;
   });
 
   const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_testimonials');
-    return saved ? JSON.parse(saved) : INITIAL_TESTIMONIALS;
+    try {
+      const saved = localStorage.getItem('mentorcpns_testimonials');
+      return saved ? JSON.parse(saved) : INITIAL_TESTIMONIALS;
+    } catch (e) {
+      console.error('Error parsing testimonials state:', e);
+      return INITIAL_TESTIMONIALS;
+    }
   });
 
   const [cms, setCms] = useState<LandingPageCMS>(() => {
-    const saved = localStorage.getItem('mentorcpns_cms');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.priceNow === 30000000) {
-        parsed.priceNow = 40000000;
-        parsed.priceOriginal = 55000000;
-        parsed.pricePromo = 48000000;
+    try {
+      const saved = localStorage.getItem('mentorcpns_cms');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.priceNow === 30000000) {
+          parsed.priceNow = 40000000;
+          parsed.priceOriginal = 55000000;
+          parsed.pricePromo = 48000000;
+        }
+        if (parsed.whatsappNumber === '6281234567890' || !parsed.whatsappNumber) {
+          parsed.whatsappNumber = '6285242308996';
+        }
+        return parsed;
       }
-      if (parsed.whatsappNumber === '6281234567890' || !parsed.whatsappNumber) {
-        parsed.whatsappNumber = '6285242308996';
-      }
-      return parsed;
+    } catch (e) {
+      console.error('Error parsing cms state:', e);
     }
     return INITIAL_CMS_DATA;
   });
 
   const [benefits, setBenefits] = useState<Benefit[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_benefits');
-    return saved ? JSON.parse(saved) : INITIAL_BENEFITS;
+    try {
+      const saved = localStorage.getItem('mentorcpns_benefits');
+      return saved ? JSON.parse(saved) : INITIAL_BENEFITS;
+    } catch (e) {
+      console.error('Error parsing benefits state:', e);
+      return INITIAL_BENEFITS;
+    }
   });
 
   const [facilities, setFacilities] = useState<Facility[]>(() => {
-    const saved = localStorage.getItem('mentorcpns_facilities');
-    return saved ? JSON.parse(saved) : INITIAL_FACILITIES;
+    try {
+      const saved = localStorage.getItem('mentorcpns_facilities');
+      return saved ? JSON.parse(saved) : INITIAL_FACILITIES;
+    } catch (e) {
+      console.error('Error parsing facilities state:', e);
+      return INITIAL_FACILITIES;
+    }
   });
 
   const [dbErrors, setDbErrors] = useState<{ [table: string]: string }>({});
@@ -284,11 +336,11 @@ export default function App() {
 
   useEffect(() => {
     const fetchSupabaseData = async () => {
+      // 1. Fetch mentors
       try {
-        // 1. Fetch mentors
         const { data: mentorsData, error: mentorsError } = await supabase.from('mentors').select('*');
         if (!mentorsError) {
-          if (mentorsData) {
+          if (mentorsData && mentorsData.length > 0) {
             setMentors(mentorsData);
           }
           setDbErrors(prev => {
@@ -303,11 +355,15 @@ export default function App() {
             mentors: `${mentorsError.message} (Code: ${mentorsError.code})`
           }));
         }
+      } catch (err: any) {
+        console.error('Exception fetching mentors:', err);
+      }
 
-        // 2. Fetch benefits
+      // 2. Fetch benefits
+      try {
         const { data: benefitsData, error: benefitsError } = await supabase.from('benefits').select('*');
         if (!benefitsError) {
-          if (benefitsData) {
+          if (benefitsData && benefitsData.length > 0) {
             setBenefits(benefitsData.map((b: any) => ({
               id: b.id,
               title: b.title,
@@ -327,11 +383,15 @@ export default function App() {
             benefits: `${benefitsError.message} (Code: ${benefitsError.code})`
           }));
         }
+      } catch (err: any) {
+        console.error('Exception fetching benefits:', err);
+      }
 
-        // 3. Fetch facilities
+      // 3. Fetch facilities
+      try {
         const { data: facilitiesData, error: facilitiesError } = await supabase.from('facilities').select('*');
         if (!facilitiesError) {
-          if (facilitiesData) {
+          if (facilitiesData && facilitiesData.length > 0) {
             setFacilities(facilitiesData.map((f: any) => ({
               id: f.id,
               title: f.title,
@@ -353,11 +413,15 @@ export default function App() {
             facilities: `${facilitiesError.message} (Code: ${facilitiesError.code})`
           }));
         }
+      } catch (err: any) {
+        console.error('Exception fetching facilities:', err);
+      }
 
-        // 4. Fetch testimonials
+      // 4. Fetch testimonials
+      try {
         const { data: testimonialsData, error: testimonialsError } = await supabase.from('testimonials').select('*');
         if (!testimonialsError) {
-          if (testimonialsData) {
+          if (testimonialsData && testimonialsData.length > 0) {
             setTestimonials(testimonialsData.map((t: any) => ({
               id: t.id,
               name: t.name,
@@ -381,7 +445,7 @@ export default function App() {
           }));
         }
       } catch (err: any) {
-        console.error('Supabase fetch failed completely:', err);
+        console.error('Exception fetching testimonials:', err);
       }
     };
 
@@ -391,6 +455,7 @@ export default function App() {
   // Load and listen to Supabase session to protect private pages
   useEffect(() => {
     let subscription: any = null;
+
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -415,7 +480,7 @@ export default function App() {
           }
         }
       } catch (err) {
-        console.error('Failed to get Supabase auth session:', err);
+        console.error('Auth initialization error:', err);
       }
     };
 
@@ -446,12 +511,16 @@ export default function App() {
       });
       subscription = data?.subscription;
     } catch (err) {
-      console.error('Failed to register Supabase auth listener:', err);
+      console.error('Auth state change listener installation error:', err);
     }
 
     return () => {
       if (subscription) {
-        subscription.unsubscribe();
+        try {
+          subscription.unsubscribe();
+        } catch (err) {
+          console.error('Error unsubscribing auth listener:', err);
+        }
       }
     };
   }, [page]);
