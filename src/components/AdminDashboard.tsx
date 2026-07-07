@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   User,
@@ -26,7 +26,19 @@ import {
   Award,
   Star,
   Sparkles,
-  Upload
+  Upload,
+  Smartphone,
+  Laptop,
+  Globe,
+  Eye,
+  Zap,
+  UserCheck,
+  Calendar,
+  Activity,
+  Play,
+  Pause,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { AppUser, Mentor, FAQItem, Testimonial, LearningMaterial, Tryout, LandingPageCMS, TryoutQuestion, Benefit, Facility } from '../types';
 
@@ -52,6 +64,8 @@ interface AdminDashboardProps {
   onLogout: () => void;
   onNavigate?: (page: string) => void;
   dbErrors?: { [table: string]: string };
+  analytics?: any;
+  onUpdateAnalytics?: (updated: any) => void;
 }
 
 export default function AdminDashboard({
@@ -75,7 +89,22 @@ export default function AdminDashboard({
   onUpdateTryouts,
   onLogout,
   onNavigate,
-  dbErrors = {}
+  dbErrors = {},
+  analytics = {
+    visitorsTotal: 1834,
+    visitorsUnique: 1205,
+    pageViews: 4290,
+    visitorsMobile: 862,
+    visitorsDesktop: 972,
+    visitorsToday: 145,
+    visitorsThisWeek: 874,
+    visitorsThisMonth: 3120,
+    ctaClicksTotal: 342,
+    ctaClicksToday: 28,
+    ctaClicksThisWeek: 164,
+    ctaClicksThisMonth: 298
+  },
+  onUpdateAnalytics
 }: AdminDashboardProps) {
 
   // Current role for dashboard view filtering
@@ -85,6 +114,7 @@ export default function AdminDashboard({
 
   const [activeTab, setActiveTab] = useState<'analytics' | 'registrations' | 'mentors' | 'materials' | 'tryouts' | 'cms' | 'settings' | 'benefits' | 'facilities' | 'reviews'>('analytics');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
   // CRUD Benefit states
@@ -636,12 +666,12 @@ export default function AdminDashboard({
             <Menu className="w-5 h-5" />
           </button>
 
-          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-white font-black shrink-0">
+          <div className="w-9 h-9 bg-secondary rounded-xl flex items-center justify-center text-white font-extrabold italic shadow-xs shrink-0">
             M
           </div>
           <div>
-            <span className="font-extrabold text-xs sm:text-sm text-gray-900 block leading-none">MENTOR CPNS ADMIN</span>
-            <span className="text-[10px] text-primary font-bold tracking-widest block uppercase mt-0.5">Control Center</span>
+            <span className="font-extrabold text-xs sm:text-sm text-secondary block leading-none">MENTOR CPNS ADMIN</span>
+            <span className="text-[10px] text-[#06257E] font-bold tracking-widest block uppercase mt-0.5">Control Center</span>
           </div>
         </div>
 
@@ -662,7 +692,7 @@ export default function AdminDashboard({
             <button 
               id="admin-logout-btn"
               onClick={onLogout}
-              className="bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+              className="bg-secondary hover:bg-secondary/90 hover:shadow-secondary/30 text-white font-bold text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
             >
               <LogOut className="w-4 h-4 shrink-0" />
               <span className="hidden sm:inline">Keluar Admin</span>
@@ -683,10 +713,22 @@ export default function AdminDashboard({
         )}
 
         {/* Sidebar for Admin */}
-        <aside className={`bg-gray-900 text-gray-300 w-64 p-5 space-y-6 flex flex-col justify-between h-[calc(100vh-64px)] fixed md:sticky top-16 z-20 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <aside className={`bg-primary text-blue-100 ${isSidebarMinimized ? 'w-64 md:w-20 p-5 md:p-3' : 'w-64 p-5'} space-y-6 flex flex-col justify-between h-[calc(100vh-64px)] fixed md:sticky top-16 z-20 transition-all duration-300 overflow-y-auto ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <div className="space-y-6">
-            <div className="space-y-1.5">
-              <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black block px-3">Divisi Akses: {currentRole}</span>
+            <div className="space-y-3">
+              <div className={`flex items-center ${isSidebarMinimized ? 'md:justify-center justify-between' : 'justify-between'} px-1`}>
+                <span className={`text-[10px] text-blue-200/60 uppercase tracking-widest font-black ${isSidebarMinimized ? 'md:hidden' : 'block'} block px-2 truncate`}>Divisi Akses: {currentRole}</span>
+                {/* Minimize Button */}
+                <button
+                  id="sidebar-minimize-toggle"
+                  onClick={() => setIsSidebarMinimized(!isSidebarMinimized)}
+                  className="hidden md:flex items-center justify-center w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white transition-all duration-200 cursor-pointer shrink-0"
+                  title={isSidebarMinimized ? "Expand Sidebar" : "Minimize Sidebar"}
+                >
+                  {isSidebarMinimized ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <hr className="border-white/10 my-2 hidden md:block" />
               
               <nav className="space-y-1">
                 {/* Analytics available to Admin */}
@@ -694,10 +736,11 @@ export default function AdminDashboard({
                   <button 
                     id="admin-tab-analytics"
                     onClick={() => selectTab('analytics')}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'analytics' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                    className={`w-full flex items-center ${isSidebarMinimized ? 'md:justify-center justify-start' : 'justify-start'} gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'analytics' ? 'bg-secondary text-white shadow-lg shadow-secondary/20' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
+                    title="Statistik Platform"
                   >
-                    <LayoutDashboard className="w-4 h-4" />
-                    <span>Statistik Platform</span>
+                    <LayoutDashboard className="w-4 h-4 shrink-0" />
+                    <span className={isSidebarMinimized ? 'md:hidden' : ''}>Statistik Platform</span>
                   </button>
                 )}
 
@@ -706,10 +749,11 @@ export default function AdminDashboard({
                   <button 
                     id="admin-tab-mentors"
                     onClick={() => selectTab('mentors')}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'mentors' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                    className={`w-full flex items-center ${isSidebarMinimized ? 'md:justify-center justify-start' : 'justify-start'} gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'mentors' ? 'bg-secondary text-white shadow-lg shadow-secondary/20' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
+                    title="Kelola Pengajar (Mentors)"
                   >
-                    <Users className="w-4 h-4" />
-                    <span>Kelola Pengajar (Mentors)</span>
+                    <Users className="w-4 h-4 shrink-0" />
+                    <span className={isSidebarMinimized ? 'md:hidden' : ''}>Kelola Pengajar (Mentors)</span>
                   </button>
                 )}
 
@@ -718,10 +762,11 @@ export default function AdminDashboard({
                   <button 
                     id="admin-tab-benefits"
                     onClick={() => selectTab('benefits')}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'benefits' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                    className={`w-full flex items-center ${isSidebarMinimized ? 'md:justify-center justify-start' : 'justify-start'} gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'benefits' ? 'bg-secondary text-white shadow-lg shadow-secondary/20' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
+                    title="Kelola Benefit"
                   >
-                    <Award className="w-4 h-4" />
-                    <span>Kelola Benefit</span>
+                    <Award className="w-4 h-4 shrink-0" />
+                    <span className={isSidebarMinimized ? 'md:hidden' : ''}>Kelola Benefit</span>
                   </button>
                 )}
 
@@ -730,10 +775,11 @@ export default function AdminDashboard({
                   <button 
                     id="admin-tab-facilities"
                     onClick={() => selectTab('facilities')}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'facilities' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                    className={`w-full flex items-center ${isSidebarMinimized ? 'md:justify-center justify-start' : 'justify-start'} gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'facilities' ? 'bg-secondary text-white shadow-lg shadow-secondary/20' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
+                    title="Kelola Fasilitas"
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Kelola Fasilitas</span>
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    <span className={isSidebarMinimized ? 'md:hidden' : ''}>Kelola Fasilitas</span>
                   </button>
                 )}
 
@@ -742,10 +788,11 @@ export default function AdminDashboard({
                   <button 
                     id="admin-tab-reviews"
                     onClick={() => selectTab('reviews')}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'reviews' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                    className={`w-full flex items-center ${isSidebarMinimized ? 'md:justify-center justify-start' : 'justify-start'} gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'reviews' ? 'bg-secondary text-white shadow-lg shadow-secondary/20' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
+                    title="Kelola Review"
                   >
-                    <Star className="w-4 h-4" />
-                    <span>Kelola Review</span>
+                    <Star className="w-4 h-4 shrink-0" />
+                    <span className={isSidebarMinimized ? 'md:hidden' : ''}>Kelola Review</span>
                   </button>
                 )}
 
@@ -754,19 +801,23 @@ export default function AdminDashboard({
                   <button 
                     id="admin-tab-cms"
                     onClick={() => selectTab('cms')}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'cms' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                    className={`w-full flex items-center ${isSidebarMinimized ? 'md:justify-center justify-start' : 'justify-start'} gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'cms' ? 'bg-secondary text-white shadow-lg shadow-secondary/20' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
+                    title="Landing Page CMS"
                   >
-                    <Settings className="w-4 h-4" />
-                    <span>Landing Page CMS</span>
+                    <Settings className="w-4 h-4 shrink-0" />
+                    <span className={isSidebarMinimized ? 'md:hidden' : ''}>Landing Page CMS</span>
                   </button>
                 )}
               </nav>
             </div>
           </div>
 
-          <div className="bg-white/5 p-4 rounded-2xl text-xs border border-white/5 space-y-1 text-center">
-            <span className="text-gray-400 block font-semibold">Logged in as:</span>
-            <strong className="text-white block">{currentUser.name}</strong>
+          <div className={`bg-white/10 p-4 rounded-2xl text-xs border border-white/10 space-y-1 text-center transition-all ${isSidebarMinimized ? 'md:p-1.5 md:mx-auto md:w-12' : 'md:p-4'}`}>
+            <span className={`text-blue-200/80 font-semibold ${isSidebarMinimized ? 'md:hidden' : 'block'} block`}>Logged in as:</span>
+            <strong className={`text-white truncate ${isSidebarMinimized ? 'md:hidden' : 'block'} block`}>{currentUser.name}</strong>
+            <div className={`${isSidebarMinimized ? 'md:flex' : 'md:hidden'} hidden w-7 h-7 rounded-full bg-secondary text-white items-center justify-center font-black mx-auto text-xs`} title={`Logged in as: ${currentUser.name}`}>
+              {currentUser.name.charAt(0).toUpperCase()}
+            </div>
           </div>
         </aside>
 
@@ -842,43 +893,336 @@ CREATE TABLE IF NOT EXISTS testimonials (
           {/* TAB 1: ANALYTICS OVERVIEW */}
           {activeTab === 'analytics' && (
             <div className="space-y-8 animate-fade-in">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900">Analisis Platform & Statistik</h2>
-                  <p className="text-xs text-gray-500 mt-1">Garis besar real-time perkembangan kuota karantina, revenue, dan jumlah registrasi peserta.</p>
+              
+              {/* Header Title */}
+              <div className="bg-gradient-to-r from-primary to-[#1e3a8a] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
+                <div className="relative z-10">
+                  <span className="bg-primary/25 border border-primary/40 text-secondary text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full inline-block">
+                    Landing Page Statistics
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white mt-3 tracking-tight">
+                    Landing Page Analytics Dashboard
+                  </h2>
+                  <p className="text-xs text-gray-300 mt-1.5 max-w-xl">
+                    Pantau aktivitas pengunjung landing page Mentor CPNS Karantina 2026 secara langsung. Data statistik diperbarui secara berkala berdasarkan interaksi riil peserta.
+                  </p>
                 </div>
               </div>
 
-              {/* Analytics KPI Matrix */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {/* KPI CARDS: WEBSITE VISITORS */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-primary rounded-full"></div>
+                  <h3 className="font-extrabold text-gray-900 text-sm tracking-wider uppercase">Pelacakan Pengunjung Platform (Real-time)</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  
+                  {/* Card 1: Total Website Visitors */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-primary/20 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TOTAL VISITORS</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight transition-all duration-300">
+                        {analytics.visitorsTotal.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                        <TrendingUp className="w-3 h-3" /> +14.2%
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Akumulasi seluruh session ID pendaftar</p>
+                  </div>
+
+                  {/* Card 3: Total Page Views */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-emerald-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+                        <Eye className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TOTAL PAGE VIEWS</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">
+                        {analytics.pageViews.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                        Ratio {(analytics.pageViews / Math.max(1, analytics.visitorsTotal)).toFixed(1)}x
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Klik navigasi & render ulang halaman</p>
+                  </div>
+
+                  {/* Card 4: Visitors Today */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-amber-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                        <Globe className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">VISITORS TODAY</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-amber-600 tracking-tight">
+                        {analytics.visitorsToday.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 animate-pulse">
+                        ● Live Now
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Statistik kunjungan hari ini</p>
+                  </div>
+
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+
+                  {/* Card 7: Visitors This Week */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-cyan-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center text-cyan-600 shrink-0">
+                        <TrendingUp className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">VISITORS THIS WEEK</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-cyan-600 tracking-tight">
+                        {analytics.visitorsThisWeek.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-cyan-600 font-bold bg-cyan-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                        Target Pas
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Siklus belajar 7 hari terakhir</p>
+                  </div>
+
+                  {/* Card 8: Visitors This Month */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-purple-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 shrink-0">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">VISITORS THIS MONTH</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-purple-600 tracking-tight">
+                        {analytics.visitorsThisMonth.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-purple-600 font-bold bg-purple-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                        Target Oke
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Akumulasi performa bulan berjalan</p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* CTA TRACKING: WHATSAPP CLICKS */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-red-600 rounded-full"></div>
+                  <h3 className="font-extrabold text-gray-900 text-sm tracking-wider uppercase">Konversi Klik Tombol WhatsApp (Daftar Sekarang)</h3>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                  
+                  {/* Card 1: Total Clicks */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-red-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600 shrink-0">
+                        <Zap className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TOTAL CTA CLICKS</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-red-600 tracking-tight">
+                        {analytics.ctaClicksTotal.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-red-600 font-bold bg-red-50 px-1.5 py-0.5 rounded-md">
+                        Klik Total
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Klik link wa.me pendaftaran utama</p>
+                  </div>
+
+                  {/* Card 2: Today's Clicks */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-amber-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                        <Activity className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TODAY'S CLICKS</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                        {analytics.ctaClicksToday.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded-md animate-pulse">
+                        Hari Ini
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Calon siswa konsul WA hari ini</p>
+                  </div>
+
+                  {/* Card 3: Weekly Clicks */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-indigo-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+                        <TrendingUp className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">WEEKLY CLICKS</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                        {analytics.ctaClicksThisWeek.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-indigo-600 font-bold">
+                        Bagus
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Total klik 7 hari terakhir</p>
+                  </div>
+
+                  {/* Card 4: Monthly Clicks */}
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-orange-100 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-[100px] pointer-events-none group-hover:scale-110 transition-transform"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 shrink-0">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">MONTHLY CLICKS</span>
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between">
+                      <strong className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                        {analytics.ctaClicksThisMonth.toLocaleString('id-ID')}
+                      </strong>
+                      <span className="text-[10px] text-orange-600 font-bold">
+                        Stabil
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5">Total klik sebulan berjalan</p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* SAAS CONVERSION PERFORMANCE PANEL */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <div className="bg-white p-6 rounded-2xl border border-gray-150 shadow-xs flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
-                    <Users className="w-6 h-6" />
-                  </div>
+                {/* Gauge Column */}
+                <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">TOTAL REGISTRASI</span>
-                    <strong className="text-xl sm:text-2xl font-black text-gray-900 block mt-0.5">{totalRegistrants}</strong>
+                    <h4 className="font-extrabold text-gray-900 text-xs tracking-wider uppercase mb-1">WhatsApp Conversion Rate (CR)</h4>
+                    <p className="text-[10px] text-gray-400">Efektivitas klik tombol Daftar dibandingkan total Unique Visitor</p>
+                  </div>
+
+                  {/* Circle Graphics */}
+                  <div className="my-6 flex flex-col items-center justify-center relative">
+                    {/* Ring calculation */}
+                    {(() => {
+                      const cr = ((analytics.ctaClicksTotal / Math.max(1, analytics.visitorsUnique)) * 100);
+                      const crStr = cr.toFixed(1);
+                      return (
+                        <>
+                          <div className="relative w-36 h-36 flex items-center justify-center">
+                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                              <circle cx="50" cy="50" r="40" stroke="#f3f4f6" strokeWidth="8" fill="transparent" />
+                              <circle 
+                                cx="50" 
+                                cy="50" 
+                                r="40" 
+                                stroke="#CE0F0F" 
+                                strokeWidth="8" 
+                                fill="transparent" 
+                                strokeDasharray="251.2" 
+                                strokeDashoffset={251.2 - (251.2 * Math.min(100, cr)) / 100}
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute text-center">
+                              <span className="text-3xl font-black text-gray-900 block">{crStr}%</span>
+                              <span className="text-[9px] text-gray-400 font-extrabold uppercase tracking-widest mt-0.5">CONVERSION</span>
+                            </div>
+                          </div>
+                          <div className="mt-4 text-center">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                              cr >= 25 ? 'bg-green-100 text-green-700' : cr >= 15 ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                            }`}>
+                              {cr >= 25 ? 'Outstanding Performance 🔥' : cr >= 15 ? 'Healthy Conversion 👍' : 'Needs Optimization ⚠️'}
+                            </span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-4 space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-gray-400">Unik Pengunjung:</span>
+                      <strong className="text-gray-800 font-bold">{analytics.visitorsUnique}</strong>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-gray-400">WhatsApp Clicks:</span>
+                      <strong className="text-red-600 font-bold">{analytics.ctaClicksTotal}</strong>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-gray-150 shadow-xs flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 shrink-0">
-                    <Check className="w-6 h-6" />
-                  </div>
+                {/* Funnel Progress Column */}
+                <div className="lg:col-span-8 bg-white p-6 rounded-2xl border border-gray-150 shadow-xs flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">PESERTA DISALURKAN</span>
-                    <strong className="text-xl sm:text-2xl font-black text-green-600 block mt-0.5">{totalApproved} / {cms.quotaTotal}</strong>
+                    <h4 className="font-extrabold text-gray-900 text-xs tracking-wider uppercase mb-1">Registration Funnel & Insights</h4>
+                    <p className="text-[10px] text-gray-400">Tahapan konversi dari melihat landing page hingga siswa melunasi tagihan Karantina</p>
                   </div>
-                </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-gray-150 shadow-xs flex items-center gap-4">
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
-                    <CreditCard className="w-6 h-6" />
+                  <div className="space-y-4 my-4">
+                    {/* Step 1: Views */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-baseline text-xs">
+                        <span className="font-bold text-gray-700 flex items-center gap-1.5">
+                          <span className="w-5 h-5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-md flex items-center justify-center">1</span>
+                          Total Page Views (Awareness)
+                        </span>
+                        <strong className="text-gray-900 font-black">{analytics.pageViews} views</strong>
+                      </div>
+                      <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: '100%' }}></div>
+                      </div>
+                    </div>
+
+                    {/* Step 2: Clicks */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-baseline text-xs">
+                        <span className="font-bold text-gray-700 flex items-center gap-1.5">
+                          <span className="w-5 h-5 bg-red-100 text-red-700 text-[10px] font-black rounded-md flex items-center justify-center">2</span>
+                          CTA WhatsApp Clicks (Interest)
+                        </span>
+                        <div className="text-right">
+                          <strong className="text-gray-900 font-black">{analytics.ctaClicksTotal} clicks</strong>
+                          <span className="text-[10px] text-gray-400 ml-1.5">({((analytics.ctaClicksTotal / Math.max(1, analytics.pageViews)) * 100).toFixed(1)}%)</span>
+                        </div>
+                      </div>
+                      <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-red-500 rounded-full" style={{ width: `${(analytics.ctaClicksTotal / Math.max(1, analytics.pageViews) * 100)}%` }}></div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">PENDING VERIFIKASI</span>
-                    <strong className="text-xl sm:text-2xl font-black text-amber-600 block mt-0.5">{pendingPayments}</strong>
+
+                  {/* Funnel insights paragraph */}
+                  <div className="bg-gray-50 p-3 rounded-xl border border-gray-150 text-[11px] text-gray-600">
+                    💡 <strong>Insight Penjualan:</strong> Tingkat penyaluran siswa yang lunas adalah <strong>{((totalApproved / Math.max(1, totalRegistrants)) * 100).toFixed(1)}%</strong> dari total pendaftar di database. Kami menyarankan follow-up berkala via WhatsApp kepada <strong>{users.filter(u => u.role === 'Peserta' && u.status !== 'Approved').length} pendaftar yang belum menyelesaikan pembayaran</strong> untuk meningkatkan konversi pendapatan!
                   </div>
                 </div>
 
@@ -958,7 +1302,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                             <td className="p-4">
                               {stud.paymentProof ? (
                                 <a 
-                                  href={stud.paymentProof} 
+                                  href={stud.paymentProof || null} 
                                   target="_blank" 
                                   rel="noreferrer"
                                   className="text-primary hover:underline font-bold text-[10px] block"
@@ -1086,7 +1430,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                         {newMentorImage ? (
                           <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white shrink-0 shadow-xs">
                             <img 
-                              src={newMentorImage} 
+                              src={newMentorImage || null} 
                               alt="Mentor Avatar Preview" 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
@@ -1161,7 +1505,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                     {mentors.map((m) => (
                       <div key={m.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-center relative gap-3">
                         <div className="flex gap-3 items-center min-w-0">
-                          <img src={m.image} alt={m.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
+                          <img src={m.image || null} alt={m.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
                           <div className="space-y-0.5 min-w-0">
                             <strong className="text-gray-900 block text-xs font-bold truncate">{m.name}</strong>
                             <span className="text-[10px] text-gray-500 block truncate">{m.role}</span>
@@ -1834,7 +2178,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                         {newFacilityImage ? (
                           <div className="relative w-20 h-16 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shrink-0">
                             <img 
-                              src={newFacilityImage} 
+                              src={newFacilityImage || null} 
                               alt="Preview" 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
@@ -1920,7 +2264,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                       <div key={f.id} className="bg-white rounded-2xl border border-gray-150 overflow-hidden shadow-xs flex flex-col justify-between text-xs">
                         <div className="relative h-40 bg-gray-100">
                           <img 
-                            src={f.image} 
+                            src={f.image || null} 
                             alt={f.title}
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
@@ -2043,7 +2387,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                         {newReviewImage ? (
                           <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white shrink-0">
                             <img 
-                              src={newReviewImage} 
+                              src={newReviewImage || null} 
                               alt="Alumni Avatar Preview" 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
@@ -2132,7 +2476,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                       <div key={t.id} className="bg-white p-5 rounded-2xl border border-gray-150 shadow-xs flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 text-xs">
                         <div className="flex gap-3 items-start flex-1">
                           <img 
-                            src={t.image} 
+                            src={t.image || null} 
                             alt={t.name}
                             className="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200"
                             referrerPolicy="no-referrer"

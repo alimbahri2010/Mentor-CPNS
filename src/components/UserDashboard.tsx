@@ -308,93 +308,100 @@ export default function UserDashboard({
       <div className="flex flex-1 relative">
         
         {/* SIDEBAR NAVIGATION (Desktop) */}
-        <aside className={`bg-gray-900 text-gray-300 w-64 p-5 space-y-6 flex flex-col justify-between fixed lg:sticky top-16 h-[calc(100vh-64px)] z-20 transition-all duration-300 ${mobileMenuOpen ? 'left-0' : '-left-64 lg:left-0'}`}>
+        <aside className={`bg-gray-900 text-gray-300 w-64 lg:w-20 xl:w-64 p-5 lg:p-3 xl:p-5 space-y-6 flex flex-col justify-between fixed lg:sticky top-16 h-[calc(100vh-64px)] z-20 transition-all duration-300 overflow-y-auto ${mobileMenuOpen ? 'left-0' : '-left-64 lg:left-0'}`}>
           <div className="space-y-6">
             <div className="space-y-1.5">
-              <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black block px-3">Siswa Portal</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black block px-3 lg:hidden xl:block truncate">Siswa Portal</span>
+              <hr className="border-white/5 my-2 hidden lg:block xl:hidden" />
               
               <nav className="space-y-1">
                 {/* Overview tab */}
                 <button 
                   id="tab-btn-overview"
                   onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'overview' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full flex items-center justify-start lg:justify-center xl:justify-start gap-3 lg:gap-0 xl:gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'overview' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  title="Ikhtisar (Dashboard)"
                 >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Ikhtisar (Dashboard)</span>
+                  <LayoutDashboard className="w-4 h-4 shrink-0" />
+                  <span className="lg:hidden xl:inline">Ikhtisar (Dashboard)</span>
                 </button>
 
                 {/* Materials tab */}
                 <button 
                   id="tab-btn-materials"
                   onClick={() => { setActiveTab('materials'); setMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'materials' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full flex items-center justify-start lg:justify-center xl:justify-start gap-3 lg:gap-0 xl:gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'materials' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  title="Modul & Video Materi"
                 >
-                  <BookOpen className="w-4 h-4" />
-                  <span>Modul & Video Materi</span>
+                  <BookOpen className="w-4 h-4 shrink-0" />
+                  <span className="lg:hidden xl:inline">Modul & Video Materi</span>
                 </button>
 
                 {/* Tryout CBT tab */}
                 <button 
                   id="tab-btn-tryouts"
                   onClick={() => { setActiveTab('tryouts'); setMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'tryouts' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full flex items-center justify-start lg:justify-center xl:justify-start gap-3 lg:gap-0 xl:gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'tryouts' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  title="Simulasi CAT Tryout"
                 >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>Simulasi CAT Tryout</span>
+                  <HelpCircle className="w-4 h-4 shrink-0" />
+                  <span className="lg:hidden xl:inline">Simulasi CAT Tryout</span>
                 </button>
 
                 {/* Payments tab */}
                 <button 
                   id="tab-btn-payments"
                   onClick={() => { setActiveTab('payments'); setMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'payments' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full flex items-center justify-start lg:justify-center xl:justify-start gap-3 lg:gap-0 xl:gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'payments' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  title="Sistem Pembayaran"
                 >
-                  <CreditCard className="w-4 h-4" />
-                  <span>Sistem Pembayaran</span>
+                  <CreditCard className="w-4 h-4 shrink-0" />
+                  <span className="lg:hidden xl:inline">Sistem Pembayaran</span>
                 </button>
 
                 {/* Certificates tab */}
                 <button 
                   id="tab-btn-certificates"
                   onClick={() => { setActiveTab('certificates'); setMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'certificates' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full flex items-center justify-start lg:justify-center xl:justify-start gap-3 lg:gap-0 xl:gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'certificates' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  title="Sertifikat Digital"
                 >
-                  <Award className="w-4 h-4" />
-                  <span>Sertifikat Digital</span>
+                  <Award className="w-4 h-4 shrink-0" />
+                  <span className="lg:hidden xl:inline">Sertifikat Digital</span>
                 </button>
 
                 {/* Profile tab */}
                 <button 
                   id="tab-btn-profile"
                   onClick={() => { setActiveTab('profile'); setMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'profile' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full flex items-center justify-start lg:justify-center xl:justify-start gap-3 lg:gap-0 xl:gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'profile' ? 'bg-primary text-white shadow-md' : 'hover:bg-white/5 hover:text-white'}`}
+                  title="Profil & Kata Sandi"
                 >
-                  <User className="w-4 h-4" />
-                  <span>Profil & Kata Sandi</span>
+                  <User className="w-4 h-4 shrink-0" />
+                  <span className="lg:hidden xl:inline">Profil & Kata Sandi</span>
                 </button>
               </nav>
             </div>
           </div>
 
           {/* Quick status indicator inside sidebar */}
-          <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span className="text-[10px] text-gray-500 uppercase tracking-widest block font-bold">STATUS ANDA:</span>
-            <div className="flex items-center gap-2 mt-1.5">
+          <div className="bg-white/5 p-4 lg:p-2.5 xl:p-4 rounded-2xl border border-white/5 lg:mx-auto lg:w-12 xl:w-auto text-center lg:flex lg:justify-center xl:block transition-all" title={`Status Anda: ${user.status}`}>
+            <span className="text-[10px] text-gray-500 uppercase tracking-widest block font-bold lg:hidden xl:block text-left">STATUS ANDA:</span>
+            <div className="flex items-center gap-2 lg:gap-0 xl:gap-2 mt-1.5 lg:mt-0 xl:mt-1.5 justify-start lg:justify-center xl:justify-start">
               {user.status === 'Approved' ? (
                 <>
-                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full"></span>
-                  <span className="text-xs font-bold text-green-400">Approved (Aktif)</span>
+                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full shrink-0" title="Approved (Aktif)"></span>
+                  <span className="text-xs font-bold text-green-400 lg:hidden xl:inline truncate ml-2 lg:ml-0 xl:ml-2">Approved (Aktif)</span>
                 </>
               ) : user.status === 'Pending' ? (
                 <>
-                  <span className="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></span>
-                  <span className="text-xs font-bold text-amber-400">Verifikasi Pembayaran</span>
+                  <span className="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse shrink-0" title="Verifikasi Pembayaran"></span>
+                  <span className="text-xs font-bold text-amber-400 lg:hidden xl:inline truncate ml-2 lg:ml-0 xl:ml-2">Verifikasi Pembayaran</span>
                 </>
               ) : (
                 <>
-                  <span className="w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-                  <span className="text-xs font-bold text-red-400">Menunggu Transfer</span>
+                  <span className="w-2.5 h-2.5 bg-red-500 rounded-full shrink-0" title="Menunggu Transfer"></span>
+                  <span className="text-xs font-bold text-red-400 lg:hidden xl:inline truncate ml-2 lg:ml-0 xl:ml-2">Menunggu Transfer</span>
                 </>
               )}
             </div>
@@ -699,7 +706,7 @@ export default function UserDashboard({
                           </button>
                         ) : mat.type === 'pdf' ? (
                           <a 
-                            href={mat.url}
+                            href={mat.url || null}
                             target="_blank"
                             rel="noreferrer"
                             onClick={() => {
@@ -714,7 +721,7 @@ export default function UserDashboard({
                           </a>
                         ) : (
                           <a 
-                            href={mat.url}
+                            href={mat.url || null}
                             target="_blank"
                             rel="noreferrer"
                             onClick={() => {
@@ -1101,7 +1108,7 @@ export default function UserDashboard({
                           {uploadedProof ? (
                             <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-gray-150 bg-white shrink-0 shadow-xs">
                               <img 
-                                src={uploadedProof} 
+                                src={uploadedProof || null} 
                                 alt="Payment Proof Preview" 
                                 className="w-full h-full object-cover"
                               />
@@ -1186,7 +1193,7 @@ export default function UserDashboard({
                             </span>
                           </div>
                           <div className="h-20 w-max border border-gray-200 rounded-lg overflow-hidden">
-                            <img src={uploadedProof} alt="Bukti Transfer" className="h-full object-cover" />
+                            <img src={uploadedProof || null} alt="Bukti Transfer" className="h-full object-cover" />
                           </div>
                         </div>
                       )}
@@ -1460,7 +1467,7 @@ export default function UserDashboard({
 
             <div className="aspect-video">
               <iframe 
-                src={activeVideoUrl} 
+                src={activeVideoUrl || null} 
                 className="w-full h-full"
                 title="Siswa Video Pembelajaran"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

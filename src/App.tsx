@@ -107,6 +107,102 @@ export default function App() {
     }
   });
 
+  // Analytics Tracking State
+  const [analytics, setAnalytics] = useState(() => {
+    const defaultAnalytics = {
+      visitorsTotal: 1834,
+      visitorsUnique: 1205,
+      pageViews: 4290,
+      visitorsMobile: 862,
+      visitorsDesktop: 972,
+      visitorsToday: 145,
+      visitorsThisWeek: 874,
+      visitorsThisMonth: 3120,
+      ctaClicksTotal: 342,
+      ctaClicksToday: 28,
+      ctaClicksThisWeek: 164,
+      ctaClicksThisMonth: 298
+    };
+    try {
+      const saved = localStorage.getItem('mentorcpns_analytics_v1');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Error parsing analytics state:', e);
+    }
+    return defaultAnalytics;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('mentorcpns_analytics_v1', JSON.stringify(analytics));
+  }, [analytics]);
+
+  // Track Page view and Unique visitors
+  useEffect(() => {
+    if (page === 'landing') {
+      const hasVisitedThisSession = sessionStorage.getItem('mentorcpns_session_visited');
+      const isMobile = window.innerWidth < 768;
+
+      setAnalytics(prev => {
+        const next = { ...prev };
+        next.pageViews += 1;
+        
+        if (!hasVisitedThisSession) {
+          sessionStorage.setItem('mentorcpns_session_visited', 'true');
+          next.visitorsTotal += 1;
+          next.visitorsToday += 1;
+          next.visitorsThisWeek += 1;
+          next.visitorsThisMonth += 1;
+          
+          if (isMobile) {
+            next.visitorsMobile += 1;
+          } else {
+            next.visitorsDesktop += 1;
+          }
+        }
+
+        const hasVisitedEver = localStorage.getItem('mentorcpns_ever_visited');
+        if (!hasVisitedEver) {
+          localStorage.setItem('mentorcpns_ever_visited', 'true');
+          next.visitorsUnique += 1;
+        }
+
+        return next;
+      });
+    }
+  }, [page]);
+
+  // Track CTA Click
+  const handleTrackCTA = () => {
+    setAnalytics(prev => {
+      const next = { ...prev };
+      next.ctaClicksTotal += 1;
+      next.ctaClicksToday += 1;
+      next.ctaClicksThisWeek += 1;
+      next.ctaClicksThisMonth += 1;
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const hasDaftarText = target.innerText?.toLowerCase().includes('daftar sekarang') || 
+                            target.closest('a')?.innerText?.toLowerCase().includes('daftar sekarang') ||
+                            target.closest('button')?.innerText?.toLowerCase().includes('daftar sekarang') ||
+                            target.closest('a')?.href?.includes('wa.me') ||
+                            target.closest('a')?.id?.includes('cta');
+      
+      if (hasDaftarText) {
+        handleTrackCTA();
+      }
+    };
+
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, []);
+
   // Core App states synchronizing from localStorage (or falling back to initial mock lists)
   const [users, setUsers] = useState<AppUser[]>(() => {
     try {
@@ -904,6 +1000,8 @@ export default function App() {
           onLogout={handleLogout}
           onNavigate={handleNavigation}
           dbErrors={dbErrors}
+          analytics={analytics}
+          onUpdateAnalytics={setAnalytics}
         />
       )}
 

@@ -708,7 +708,7 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
               <div key={facility.id} className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
                 <div className="h-48 bg-gray-200 relative overflow-hidden">
                   <img 
-                    src={facility.image} 
+                    src={facility.image || null} 
                     alt={facility.title} 
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
@@ -813,7 +813,7 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
               <div key={mentor.id} className="bg-white/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/40 hover:bg-white/80 hover:shadow-xl transition-all text-center flex flex-col items-center">
                 <div className="w-full h-64 bg-gray-200 relative overflow-hidden">
                   <img 
-                    src={mentor.image} 
+                    src={mentor.image || null} 
                     alt={mentor.name} 
                     className="w-full h-full object-cover object-top filter grayscale hover:grayscale-0 transition-all duration-500"
                     referrerPolicy="no-referrer"
@@ -997,7 +997,7 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
 
                 <div className="flex items-center gap-4 border-t border-white/40 pt-6 mt-6">
                   <img 
-                    src={testimonials[activeTestimonial]?.image} 
+                    src={testimonials[activeTestimonial]?.image || null} 
                     alt={testimonials[activeTestimonial]?.name} 
                     className="w-12 h-12 rounded-full object-cover"
                     referrerPolicy="no-referrer"
@@ -1127,13 +1127,13 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
             <div className="pt-6 border-t border-white/30 flex flex-col items-center gap-3">
               <h6 className="font-bold text-gray-900 text-xs tracking-wider">IKUTI MEDIA SOSIAL KAMI:</h6>
               <div className="flex gap-3">
-                <a href={cms.instagramUrl} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#F8F9FA] hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-colors shadow-xs">
+                <a href={cms.instagramUrl || null} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#F8F9FA] hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-colors shadow-xs">
                   <Instagram className="w-5 h-5" />
                 </a>
-                <a href={cms.tiktokUrl} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#F8F9FA] hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-colors shadow-xs">
+                <a href={cms.tiktokUrl || null} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#F8F9FA] hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-colors shadow-xs">
                   <Music className="w-5 h-5" />
                 </a>
-                <a href={cms.facebookUrl} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#F8F9FA] hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-colors shadow-xs">
+                <a href={cms.facebookUrl || null} target="_blank" rel="noreferrer" className="w-10 h-10 bg-[#F8F9FA] hover:bg-primary hover:text-white text-gray-600 rounded-xl flex items-center justify-center transition-colors shadow-xs">
                   <Facebook className="w-5 h-5" />
                 </a>
               </div>
