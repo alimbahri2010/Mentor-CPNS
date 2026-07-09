@@ -41,6 +41,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { AppUser, Mentor, FAQItem, Testimonial, LearningMaterial, Tryout, LandingPageCMS, TryoutQuestion, Benefit, Facility } from '../types';
+import { SupabaseImage } from './SupabaseImage';
+import { uploadFile, deleteFile } from '../lib/storage';
 
 interface AdminDashboardProps {
   currentUser: AppUser;
@@ -146,6 +148,9 @@ export default function AdminDashboard({
   const [newMentorSpec, setNewMentorSpec] = useState('');
   const [newMentorImage, setNewMentorImage] = useState('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80');
   const [editingMentorId, setEditingMentorId] = useState<string | null>(null);
+  const [isUploadingMentor, setIsUploadingMentor] = useState(false);
+  const [isUploadingFacility, setIsUploadingFacility] = useState(false);
+  const [isUploadingReview, setIsUploadingReview] = useState(false);
 
   // CRUD Material states
   const [newMatTitle, setNewMatTitle] = useState('');
@@ -274,8 +279,12 @@ export default function AdminDashboard({
   };
 
   // Delete Mentor
-  const handleDeleteMentor = (id: string) => {
+  const handleDeleteMentor = async (id: string) => {
     if (confirm('Hapus mentor ini?')) {
+      const mentorToDelete = mentors.find(m => m.id === id);
+      if (mentorToDelete?.image) {
+        await deleteFile(mentorToDelete.image);
+      }
       onUpdateMentors(mentors.filter(m => m.id !== id));
       if (editingMentorId === id) {
         handleCancelEditMentor();
@@ -555,8 +564,12 @@ export default function AdminDashboard({
   };
 
   // Delete Facility
-  const handleDeleteFacility = (id: string) => {
+  const handleDeleteFacility = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus fasilitas ini?')) {
+      const facilityToDelete = facilities.find(f => f.id === id);
+      if (facilityToDelete?.image) {
+        await deleteFile(facilityToDelete.image);
+      }
       onUpdateFacilities(facilities.filter(f => f.id !== id));
       if (editingFacilityId === id) {
         handleCancelEditFacility();
@@ -628,8 +641,12 @@ export default function AdminDashboard({
   };
 
   // Delete Review
-  const handleDeleteReview = (id: string) => {
+  const handleDeleteReview = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus ulasan ini?')) {
+      const reviewToDelete = testimonials.find(t => t.id === id);
+      if (reviewToDelete?.image) {
+        await deleteFile(reviewToDelete.image);
+      }
       onUpdateTestimonials(testimonials.filter(t => t.id !== id));
       if (editingReviewId === id) {
         handleCancelEditReview();
@@ -1429,15 +1446,20 @@ CREATE TABLE IF NOT EXISTS testimonials (
                       <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-150">
                         {newMentorImage ? (
                           <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white shrink-0 shadow-xs">
-                            <img 
-                              src={newMentorImage || null} 
+                            <SupabaseImage 
+                              src={newMentorImage} 
                               alt="Mentor Avatar Preview" 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
                             />
                             <button
                               type="button"
-                              onClick={() => setNewMentorImage('')}
+                              onClick={async () => {
+                                if (newMentorImage) {
+                                  await deleteFile(newMentorImage);
+                                  setNewMentorImage('');
+                                }
+                              }}
                               className="absolute inset-0 bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                               title="Hapus foto"
                             >
@@ -1451,22 +1473,29 @@ CREATE TABLE IF NOT EXISTS testimonials (
                         )}
                         <div className="flex-1">
                           <label className="inline-flex bg-primary/10 hover:bg-primary/20 text-primary font-bold px-3.5 py-2 rounded-xl text-xs cursor-pointer items-center gap-1.5 transition-all border border-dashed border-primary/20">
-                            <Upload className="w-3.5 h-3.5" />
-                            <span>{newMentorImage ? 'Ganti Foto' : 'Upload Foto'}</span>
+                            <Upload className={`w-3.5 h-3.5 ${isUploadingMentor ? 'animate-bounce' : ''}`} />
+                            <span>{isUploadingMentor ? 'Mengunggah...' : (newMentorImage ? 'Ganti Foto' : 'Upload Foto')}</span>
                             <input 
                               type="file" 
                               accept="image/*" 
                               className="hidden" 
-                              onChange={(e) => {
+                              disabled={isUploadingMentor}
+                              onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    if (typeof reader.result === 'string') {
-                                      setNewMentorImage(reader.result);
+                                  try {
+                                    setIsUploadingMentor(true);
+                                    if (newMentorImage) {
+                                      await deleteFile(newMentorImage);
                                     }
-                                  };
-                                  reader.readAsDataURL(file);
+                                    const itemId = editingMentorId || 'm_' + Date.now();
+                                    const path = await uploadFile(file, 'mentors', itemId);
+                                    setNewMentorImage(path);
+                                  } catch (err: any) {
+                                    alert('Gagal mengunggah foto: ' + err.message);
+                                  } finally {
+                                    setIsUploadingMentor(false);
+                                  }
                                 }
                               }}
                             />
@@ -1505,7 +1534,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
                     {mentors.map((m) => (
                       <div key={m.id} className="bg-white p-4 rounded-2xl border border-gray-150 shadow-xs flex justify-between items-center relative gap-3">
                         <div className="flex gap-3 items-center min-w-0">
-                          <img src={m.image || null} alt={m.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
+                          <SupabaseImage src={m.image} alt={m.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
                           <div className="space-y-0.5 min-w-0">
                             <strong className="text-gray-900 block text-xs font-bold truncate">{m.name}</strong>
                             <span className="text-[10px] text-gray-500 block truncate">{m.role}</span>
@@ -2177,15 +2206,20 @@ CREATE TABLE IF NOT EXISTS testimonials (
                       <div className="flex items-center gap-3">
                         {newFacilityImage ? (
                           <div className="relative w-20 h-16 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shrink-0">
-                            <img 
-                              src={newFacilityImage || null} 
+                            <SupabaseImage 
+                              src={newFacilityImage} 
                               alt="Preview" 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
                             />
                             <button
                               type="button"
-                              onClick={() => setNewFacilityImage('')}
+                              onClick={async () => {
+                                if (newFacilityImage) {
+                                  await deleteFile(newFacilityImage);
+                                  setNewFacilityImage('');
+                                }
+                              }}
                               className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white p-0.5 rounded-full shadow transition-colors"
                               title="Hapus foto"
                             >
@@ -2198,22 +2232,29 @@ CREATE TABLE IF NOT EXISTS testimonials (
                           </div>
                         )}
                         <label className="flex-1 bg-primary/10 hover:bg-primary/20 text-primary font-bold px-4 py-3 rounded-xl text-xs cursor-pointer flex items-center justify-center gap-1.5 transition-all border border-dashed border-primary/20">
-                          <Upload className="w-3.5 h-3.5" />
-                          <span>{newFacilityImage ? 'Ganti Foto' : 'Upload Foto'}</span>
+                          <Upload className={`w-3.5 h-3.5 ${isUploadingFacility ? 'animate-bounce' : ''}`} />
+                          <span>{isUploadingFacility ? 'Mengunggah...' : (newFacilityImage ? 'Ganti Foto' : 'Upload Foto')}</span>
                           <input 
                             type="file" 
                             accept="image/*" 
                             className="hidden" 
-                            onChange={(e) => {
+                            disabled={isUploadingFacility}
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  if (typeof reader.result === 'string') {
-                                    setNewFacilityImage(reader.result);
+                                try {
+                                  setIsUploadingFacility(true);
+                                  if (newFacilityImage) {
+                                    await deleteFile(newFacilityImage);
                                   }
-                                };
-                                reader.readAsDataURL(file);
+                                  const itemId = editingFacilityId || 'f_' + Date.now();
+                                  const path = await uploadFile(file, 'facilities', itemId);
+                                  setNewFacilityImage(path);
+                                } catch (err: any) {
+                                  alert('Gagal mengunggah foto: ' + err.message);
+                                } finally {
+                                  setIsUploadingFacility(false);
+                                }
                               }
                             }}
                           />
@@ -2263,8 +2304,8 @@ CREATE TABLE IF NOT EXISTS testimonials (
                     {facilities.map((f) => (
                       <div key={f.id} className="bg-white rounded-2xl border border-gray-150 overflow-hidden shadow-xs flex flex-col justify-between text-xs">
                         <div className="relative h-40 bg-gray-100">
-                          <img 
-                            src={f.image || null} 
+                          <SupabaseImage 
+                            src={f.image} 
                             alt={f.title}
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
@@ -2386,15 +2427,20 @@ CREATE TABLE IF NOT EXISTS testimonials (
                       <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-150">
                         {newReviewImage ? (
                           <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white shrink-0">
-                            <img 
-                              src={newReviewImage || null} 
+                            <SupabaseImage 
+                              src={newReviewImage} 
                               alt="Alumni Avatar Preview" 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
                             />
                             <button
                               type="button"
-                              onClick={() => setNewReviewImage('')}
+                              onClick={async () => {
+                                if (newReviewImage) {
+                                  await deleteFile(newReviewImage);
+                                  setNewReviewImage('');
+                                }
+                              }}
                               className="absolute inset-0 bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                               title="Hapus foto"
                             >
@@ -2408,22 +2454,29 @@ CREATE TABLE IF NOT EXISTS testimonials (
                         )}
                         <div className="flex-1">
                           <label className="inline-flex bg-primary/10 hover:bg-primary/20 text-primary font-bold px-3.5 py-2 rounded-xl text-xs cursor-pointer items-center gap-1.5 transition-all border border-dashed border-primary/20">
-                            <Upload className="w-3.5 h-3.5" />
-                            <span>{newReviewImage ? 'Ganti Foto' : 'Upload Foto'}</span>
+                            <Upload className={`w-3.5 h-3.5 ${isUploadingReview ? 'animate-bounce' : ''}`} />
+                            <span>{isUploadingReview ? 'Mengunggah...' : (newReviewImage ? 'Ganti Foto' : 'Upload Foto')}</span>
                             <input 
                               type="file" 
                               accept="image/*" 
                               className="hidden" 
-                              onChange={(e) => {
+                              disabled={isUploadingReview}
+                              onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    if (typeof reader.result === 'string') {
-                                      setNewReviewImage(reader.result);
+                                  try {
+                                    setIsUploadingReview(true);
+                                    if (newReviewImage) {
+                                      await deleteFile(newReviewImage);
                                     }
-                                  };
-                                  reader.readAsDataURL(file);
+                                    const itemId = editingReviewId || 't_' + Date.now();
+                                    const path = await uploadFile(file, 'testimonials', itemId);
+                                    setNewReviewImage(path);
+                                  } catch (err: any) {
+                                    alert('Gagal mengunggah foto: ' + err.message);
+                                  } finally {
+                                    setIsUploadingReview(false);
+                                  }
                                 }
                               }}
                             />
@@ -2475,8 +2528,8 @@ CREATE TABLE IF NOT EXISTS testimonials (
                     {testimonials.map((t) => (
                       <div key={t.id} className="bg-white p-5 rounded-2xl border border-gray-150 shadow-xs flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 text-xs">
                         <div className="flex gap-3 items-start flex-1">
-                          <img 
-                            src={t.image || null} 
+                          <SupabaseImage 
+                            src={t.image} 
                             alt={t.name}
                             className="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200"
                             referrerPolicy="no-referrer"

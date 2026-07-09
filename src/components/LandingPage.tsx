@@ -34,6 +34,7 @@ import {
   X
 } from 'lucide-react';
 import { LandingPageCMS, Mentor, FAQItem, Testimonial, AppUser, Benefit, Facility } from '../types';
+import { SupabaseImage } from './SupabaseImage';
 
 interface LandingPageProps {
   cms: LandingPageCMS;
@@ -707,8 +708,8 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
             {facilities.map((facility) => (
               <div key={facility.id} className="bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all">
                 <div className="h-48 bg-gray-200 relative overflow-hidden">
-                  <img 
-                    src={facility.image || null} 
+                  <SupabaseImage 
+                    src={facility.image} 
                     alt={facility.title} 
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
@@ -812,8 +813,8 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
             {mentors.map((mentor) => (
               <div key={mentor.id} className="bg-white/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/40 hover:bg-white/80 hover:shadow-xl transition-all text-center flex flex-col items-center">
                 <div className="w-full h-64 bg-gray-200 relative overflow-hidden">
-                  <img 
-                    src={mentor.image || null} 
+                  <SupabaseImage 
+                    src={mentor.image} 
                     alt={mentor.name} 
                     className="w-full h-full object-cover object-top filter grayscale hover:grayscale-0 transition-all duration-500"
                     referrerPolicy="no-referrer"
@@ -996,8 +997,8 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
                 </div>
 
                 <div className="flex items-center gap-4 border-t border-white/40 pt-6 mt-6">
-                  <img 
-                    src={testimonials[activeTestimonial]?.image || null} 
+                  <SupabaseImage 
+                    src={testimonials[activeTestimonial]?.image} 
                     alt={testimonials[activeTestimonial]?.name} 
                     className="w-12 h-12 rounded-full object-cover"
                     referrerPolicy="no-referrer"

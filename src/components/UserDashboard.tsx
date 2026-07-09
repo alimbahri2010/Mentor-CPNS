@@ -26,6 +26,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { AppUser, LearningMaterial, Tryout, TryoutResult, Announcement, LandingPageCMS } from '../types';
+import { SupabaseImage } from './SupabaseImage';
+import { uploadFile, deleteFile } from '../lib/storage';
 
 interface UserDashboardProps {
   user: AppUser;
@@ -71,6 +73,7 @@ export default function UserDashboard({
   const [uploadedProof, setUploadedProof] = useState<string | null>(user.paymentProof || null);
   const [paymentDate, setPaymentDate] = useState<string>(user.paymentDate || '');
   const [paymentSuccess, setPaymentSuccess] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   // Active Video Modal State
   const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
@@ -1107,14 +1110,25 @@ export default function UserDashboard({
                         <div className="flex gap-4 items-center">
                           {uploadedProof ? (
                             <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-gray-150 bg-white shrink-0 shadow-xs">
-                              <img 
-                                src={uploadedProof || null} 
+                              <SupabaseImage 
+                                src={uploadedProof} 
                                 alt="Payment Proof Preview" 
                                 className="w-full h-full object-cover"
                               />
                               <button
                                 type="button"
-                                onClick={() => setUploadedProof(null)}
+                                onClick={async () => {
+                                  if (uploadedProof) {
+                                    await deleteFile(uploadedProof);
+                                    setUploadedProof(null);
+                                    onUpdateUser({
+                                      ...user,
+                                      paymentProof: null,
+                                      paymentDate: '',
+                                      status: 'Waiting Payment'
+                                    });
+                                  }
+                                }}
                                 className="absolute inset-0 bg-black/55 hover:bg-black/70 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                                 title="Hapus Bukti"
                               >
@@ -1128,23 +1142,28 @@ export default function UserDashboard({
                           )}
 
                           <label className="flex-1 border-2 border-dashed border-gray-200 hover:border-primary/50 rounded-2xl p-4 text-center bg-gray-50/50 hover:bg-gray-50/80 transition-all flex flex-col items-center justify-center space-y-1 cursor-pointer">
-                            <Upload className="w-5 h-5 text-primary" />
-                            <span className="text-xs font-bold text-primary">Pilih Gambar Bukti</span>
+                            <Upload className={`w-5 h-5 text-primary ${isUploading ? 'animate-bounce' : ''}`} />
+                            <span className="text-xs font-bold text-primary">
+                              {isUploading ? 'Mengunggah...' : 'Pilih Gambar Bukti'}
+                            </span>
                             <span className="text-[9px] text-gray-400">PNG, JPG, JPEG (Maks. 5MB)</span>
                             <input 
                               type="file" 
                               accept="image/*" 
                               className="hidden" 
-                              onChange={(e) => {
+                              disabled={isUploading}
+                              onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    if (typeof reader.result === 'string') {
-                                      setUploadedProof(reader.result);
-                                    }
-                                  };
-                                  reader.readAsDataURL(file);
+                                  try {
+                                    setIsUploading(true);
+                                    const path = await uploadFile(file, 'paymentProof', user.invoiceNo || 'invoice');
+                                    setUploadedProof(path);
+                                  } catch (err: any) {
+                                    alert('Gagal mengunggah gambar: ' + err.message);
+                                  } finally {
+                                    setIsUploading(false);
+                                  }
                                 }
                               }}
                             />
@@ -1193,7 +1212,7 @@ export default function UserDashboard({
                             </span>
                           </div>
                           <div className="h-20 w-max border border-gray-200 rounded-lg overflow-hidden">
-                            <img src={uploadedProof || null} alt="Bukti Transfer" className="h-full object-cover" />
+                            <SupabaseImage src={uploadedProof} alt="Bukti Transfer" className="h-full object-cover" />
                           </div>
                         </div>
                       )}
