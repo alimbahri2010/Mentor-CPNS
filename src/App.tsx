@@ -18,73 +18,7 @@ import {
 import { AppUser, Mentor, LearningMaterial, Tryout, TryoutResult, Announcement, LandingPageCMS, FAQItem, Testimonial, Benefit, Facility } from './types';
 
 // Default mock accounts pre-configured for live demo and evaluation
-const DEFAULT_USERS: AppUser[] = [
-  {
-    id: 'u_admin',
-    name: 'Admin Utama Mentor CPNS',
-    email: 'admin@mentorcpns.com',
-    password: 'admin123',
-    whatsapp: '628123456789',
-    origin: 'Makassar',
-    targetInstansi: 'Pusat Kendali',
-    role: 'Admin',
-    status: 'Approved',
-    joinedAt: '2026-06-25'
-  },
-  {
-    id: 'u_finance',
-    name: 'Sri Mulyati (Finance)',
-    email: 'finance@mentorcpns.com',
-    password: 'finance123',
-    whatsapp: '628123456780',
-    origin: 'Makassar',
-    targetInstansi: 'Keuangan',
-    role: 'Finance',
-    status: 'Approved',
-    joinedAt: '2026-06-25'
-  },
-  {
-    id: 'u_mentor',
-    name: 'Dwi Prasetyo (Dosen Ahli)',
-    email: 'mentor@mentorcpns.com',
-    password: 'mentor123',
-    whatsapp: '628123456781',
-    origin: 'Makassar',
-    targetInstansi: 'Akademis',
-    role: 'Mentor',
-    status: 'Approved',
-    joinedAt: '2026-06-25'
-  },
-  {
-    id: 'u_peserta1',
-    name: 'Andi Wijaya',
-    email: 'andi@gmail.com',
-    password: 'peserta123',
-    whatsapp: '628123456782',
-    origin: 'Makassar',
-    targetInstansi: 'Kemenkumham (Penjaga Tahanan)',
-    role: 'Peserta',
-    status: 'Approved',
-    joinedAt: '2026-06-25',
-    invoiceNo: 'INV-245890',
-    quizProgress: {
-      'https://www.youtube.com/embed/dQw4w9WgXcQ': 100
-    }
-  },
-  {
-    id: 'u_peserta2',
-    name: 'Budi Hartono',
-    email: 'budi@gmail.com',
-    password: 'peserta123',
-    whatsapp: '628123456783',
-    origin: 'Gowa',
-    targetInstansi: 'Kejaksaan Agung (Kawal Tahanan)',
-    role: 'Peserta',
-    status: 'Waiting Payment',
-    joinedAt: '2026-06-26',
-    invoiceNo: 'INV-783294'
-  }
-];
+const DEFAULT_USERS: AppUser[] = [];
 
 const isMockUser = (user: AppUser | null): boolean => {
   if (!user) return false;
@@ -222,59 +156,7 @@ export default function App() {
       const saved = localStorage.getItem('mentorcpns_mentors');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return parsed.map((item: any) => {
-            if (item.id === 'm1') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782965951292.png'
-              };
-            }
-            if (item.id === 'm2') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782966185611.png'
-              };
-            }
-            if (item.id === 'm3') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782966747706.png'
-              };
-            }
-            if (item.id === 'm4') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782966744893.png'
-              };
-            }
-            if (item.id === 'm5') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782966741727.png'
-              };
-            }
-            if (item.id === 'm6') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782966739196.png'
-              };
-            }
-            if (item.id === 'm7') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782966903383.png'
-              };
-            }
-            if (item.id === 'm8') {
-              return {
-                ...item,
-                image: '/assets/images/regenerated_image_1782966736522.png'
-              };
-            }
-            return item;
-          });
-        }
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.error('Error parsing mentors state:', e);

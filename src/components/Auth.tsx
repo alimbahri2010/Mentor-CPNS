@@ -11,7 +11,6 @@ import {
   CheckSquare, 
   ArrowLeft,
   KeyRound,
-  Chrome,
   ShieldCheck,
   Send
 } from 'lucide-react';
@@ -64,16 +63,6 @@ export default function Auth({ onLogin, onRegister, users, onNavigate, initialMo
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
-
-  // Handle Quick Login for testing
-  const handleQuickLogin = (email: string, pass: string) => {
-    const found = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (found) {
-      onLogin(found);
-    } else {
-      setLoginError('Akun demo tidak ditemukan dalam state lokal.');
-    }
-  };
 
   // Handle Login Submit
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -365,23 +354,6 @@ export default function Auth({ onLogin, onRegister, users, onNavigate, initialMo
                   Masuk Portal
                 </button>
               </div>
-
-              <div className="relative flex py-2 items-center">
-                <div className="flex-grow border-t border-gray-150"></div>
-                <span className="flex-shrink mx-4 text-gray-400 text-[10px] font-bold uppercase">ATAU MASUK DENGAN</span>
-                <div className="flex-grow border-t border-gray-150"></div>
-              </div>
-
-              {/* Google Login Mock */}
-              <button 
-                id="google-login-btn"
-                type="button"
-                onClick={() => handleQuickLogin('admin@mentorcpns.com', 'admin123')}
-                className="w-full border border-gray-200 hover:bg-gray-550 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <Chrome className="w-4 h-4 text-red-500" />
-                <span>Masuk dengan Google (Akun Admin)</span>
-              </button>
 
             </form>
           ) : (
