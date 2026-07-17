@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { LandingPageCMS, Mentor, FAQItem, Testimonial, AppUser, Benefit, Facility } from '../types';
 import { SupabaseImage } from './SupabaseImage';
+import logoImg from '../assets/images/regenerated_image_1784311087496.png';
 
 interface LandingPageProps {
   cms: LandingPageCMS;
@@ -91,9 +92,12 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center text-white font-extrabold text-xl italic shadow-lg">
-                M
-              </div>
+              <img 
+                src={logoImg} 
+                alt="Mentor CPNS Logo" 
+                className="w-10 h-10 object-contain"
+                referrerPolicy="no-referrer"
+              />
               <div className="flex flex-col leading-none">
                 <span className="font-extrabold text-lg tracking-tighter uppercase text-[#ce0f0f]">Mentor <span className="text-[#ce0f0f]">CPNS</span></span>
                 <span className="text-[10px] tracking-[0.2em] font-semibold opacity-60 uppercase text-[#1F2937]">Karantina 2026</span>
@@ -1150,9 +1154,12 @@ export default function LandingPage({ cms, mentors, faqs, testimonials, benefits
           
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg" style={{ backgroundColor: '#ffffff', color: '#06257e' }}>
-                M
-              </div>
+              <img 
+                src={logoImg} 
+                alt="Mentor CPNS Logo" 
+                className="w-10 h-10 object-contain"
+                referrerPolicy="no-referrer"
+              />
               <span className="font-extrabold tracking-tight text-lg text-white uppercase">MENTOR CPNS</span>
             </div>
             <p className="text-xs text-blue-100/70 leading-relaxed">

@@ -51,18 +51,16 @@ export async function getSignedUrl(path: string, expiresIn: number = 60 * 60 * 2
   }
   
   try {
-    const { data, error } = await supabase.storage
+    // Karena bucket 'app-files' sekarang sudah diatur menjadi publik oleh user,
+    // kita dapat langsung menggunakan getPublicUrl secara aman. Ini memungkinkan
+    // pengguna yang belum login (di landing page) untuk melihat gambar tanpa error.
+    const { data } = supabase.storage
       .from('app-files')
-      .createSignedUrl(path, expiresIn);
+      .getPublicUrl(path);
       
-    if (error) {
-      console.error('Error generating signed URL for:', path, error);
-      return '';
-    }
-    
-    return data?.signedUrl || '';
+    return data?.publicUrl || '';
   } catch (err) {
-    console.error('Exception generating signed URL:', err);
+    console.error('Exception generating public URL:', err);
     return '';
   }
 }
